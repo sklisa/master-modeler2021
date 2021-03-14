@@ -4,11 +4,12 @@
 This project is for Master Modeler Competition 2021, aiming to help ERASE Child Trafficking increase social media exposure.
 
 
-DataCollection - GraphAPI
+DataCollection.py - GraphAPI
 unavailable_urls.txt - url not working (error100, including deleted, not including repost)
 RawData - JSON, index==excel order, including error100=>empty JSON
-DataCleaning - created_times=>pandas extraction; 
 FilteredData == dataset.csv
+DataCleaning.py - created_times=>pandas extraction; 
+
 
 media_type summary
 [share]                                 1267
@@ -30,5 +31,5 @@ media_type summary
 [profile_media]                            1    can be deleted, update profile picture
 [new_album]                                1    => [photo], photo not shown
 
-
+FeaturePrep0313.py
 
