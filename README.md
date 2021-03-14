@@ -18,7 +18,7 @@ media_type summary
 []                                        21
 [video_direct_response]                   17	=> [video]
 [share, fundraiser_for_story]              6	ignore
-[native_templates]                         4	=> [video]???
+[native_templates]                         4	=> [video], but dont have url
 [cover_photo]                              3	update cover photo, can be deleted
 [fundraiser_for_story]                     2	ignore
 [photo, fundraiser_for_story]              2	ignore
