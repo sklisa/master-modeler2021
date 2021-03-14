@@ -22,6 +22,7 @@ unavailable_json = []
 # July 30 World Day Against Trafficking in Person
 
 engagement = pd.read_csv(engagement_data, usecols=['URL', 'total engagement', 'engagement rate', 'reactions', 'shares', 'comments'])
+engagement = engagement.rename({"total engagement": "total_engagement", "engagement rate": "engagement_rate"}, axis=1)
 
 
 class MediaTypeError(Exception):
@@ -67,6 +68,13 @@ for file in filter_files:
                 new_dct['Fri'] = 1
             elif new_dct['day_week'] == 5:
                 new_dct['Sat'] = 1
+
+            # event
+            new_dct['event'] = 0
+            if new_dct['date_dt'].month == 1:
+                new_dct['event'] = 1
+            elif new_dct['date_dt'].month == 7 and new_dct['date_dt'].day == 30:
+                new_dct['event'] = 1
 
             # season
             new_dct['winter'] = 0
@@ -143,6 +151,11 @@ for file in filter_files:
                 # engagements
                 new_dct.update(engagement.loc[pd.to_numeric(filename[:-5]), engagement.columns != 'URL'])
 
+            # deal with cleaned_text
+            if new_dct['cleaned_message'] is None and 'cleaned_text' in new_dct.keys():
+                new_dct['cleaned_message'] = new_dct['cleaned_text']
+                new_dct['cleaned_text'] = None
+
             out_file = open(out_dir + filename, 'w')
             json.dump(new_dct, out_file, default=np_encoder)
             list_of_dct.append(new_dct)
@@ -154,10 +167,11 @@ for file in filter_files:
             print('URL Matching Error: Could not match', filename[:-5], 'in original data')
 
 df = pd.DataFrame(list_of_dct)
+df = df.drop(['cleaned_text'], axis=1)  # drop unused col
 # print(df.head())
 # print(len(df))
 # print(df.columns)
 # print(engagement.head)
-df.to_csv('dataset0313.csv', sep='\t', index=False)
+df.to_csv('dataset0313.csv', index=False)  #sep='\t'
 
 
