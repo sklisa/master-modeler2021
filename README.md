@@ -31,5 +31,6 @@ media_type summary
 [profile_media]                            1    can be deleted, update profile picture
 [new_album]                                1    => [photo], photo not shown
 
-FeaturePrep0313.py
+FeaturePrep0313.py - extract date, time, media type & url; merge engagements from original data
+	creates PrepData0313, dataset0313.csv
 
