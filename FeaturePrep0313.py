@@ -12,6 +12,7 @@ filter_files = glob.glob(dir+'/FilteredData/'+'*.json')
 out_dir = dir+'/PrepData0313/'
 engagement_data = dir+'/Master Modeler Competition 2021 - ERASE - FB post collection (1_2017 to current).csv'
 list_of_dct = []
+list_of_filtered = []
 unavailable_json = []
 
 # Events
@@ -114,28 +115,34 @@ for file in filter_files:
             new_dct['thumbnail_url'] = []
             if dct['attachments'] is not None:
                 for media in dct['attachments']:
-                    new_dct['media_desc'].append(media['media_description'])
-                    new_dct['thumbnail_url'].append(media['thumbnail_url'])
                     if media['media_type'] in ['avatar', 'profile_media', 'cover_photo']:
                         raise MediaTypeError
+
                     if media['media_type'] == 'share':
                         new_dct['share'] = 1
+                        new_dct['media_desc'] = media['media_description']
+                        new_dct['thumbnail_url'] = media['thumbnail_url']
                         if media['media_url'] is not None:
                             new_dct['share_url'] = media['media_url']
                         else:
                             print('Media URL Error: ', filename, new_dct['url'], 'share_url is missing')
-                    if media['media_type'] in ['photo', 'album', 'new_album']:
+                    elif media['media_type'] in ['photo', 'album', 'new_album']:
                         new_dct['photo'] = 1
+                        new_dct['media_desc'] = media['media_description']
+                        new_dct['thumbnail_url'] = media['thumbnail_url']
                         if media['media_url'] is not None:
                             new_dct['photo_url'] = media['media_url']
                         else:
                             print('Media URL Error: ', filename, new_dct['url'], 'photo_url is missing')
-                    if media['media_type'] in ['video_inline', 'video_direct_response', 'native_templates', 'video', 'map']:
+                    elif media['media_type'] in ['video_inline', 'video_direct_response', 'native_templates', 'video', 'map']:
                         new_dct['video'] = 1
+                        new_dct['media_desc'] = media['media_description']
+                        new_dct['thumbnail_url'] = media['thumbnail_url']
                         if media['media_url'] is not None:
                             new_dct['video_url'] = media['media_url']
                         else:
                             print('Media URL Error: ', filename, new_dct['url'], 'video_url is missing')
+
             new_dct['link'] = 0
             new_dct['link_url'] = None
             if 'urls' in dct.keys() and dct['urls'] is not None:
@@ -145,16 +152,12 @@ for file in filter_files:
             # check url from json and original data
             url1 = new_dct['url']
             url2 = engagement.loc[pd.to_numeric(filename[:-5])]['URL']
-            if urlparse(url1).netloc != urlparse(url2).netloc:
+            # if urlparse(url1).netloc != urlparse(url2).netloc:
+            if url1 != url2:
                 raise URLMatchError
             else:
                 # engagements
                 new_dct.update(engagement.loc[pd.to_numeric(filename[:-5]), engagement.columns != 'URL'])
-
-            # deal with cleaned_text
-            if new_dct['cleaned_message'] is None and 'cleaned_text' in new_dct.keys():
-                new_dct['cleaned_message'] = new_dct['cleaned_text']
-                new_dct['cleaned_text'] = None
 
             out_file = open(out_dir + filename, 'w')
             json.dump(new_dct, out_file, default=np_encoder)
@@ -167,11 +170,6 @@ for file in filter_files:
             print('URL Matching Error: Could not match', filename[:-5], 'in original data')
 
 df = pd.DataFrame(list_of_dct)
-df = df.drop(['cleaned_text'], axis=1)  # drop unused col
-# print(df.head())
-# print(len(df))
-# print(df.columns)
-# print(engagement.head)
 df.to_csv('dataset0313.csv', index=False)  #sep='\t'
 
 
