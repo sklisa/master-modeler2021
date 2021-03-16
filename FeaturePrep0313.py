@@ -10,8 +10,9 @@ from urllib.parse import urlparse
 dir = os.getcwd()
 filter_files = glob.glob(dir+'/FilteredData/'+'*.json')
 out_dir = dir+'/PrepData0313/'
-engagement_data = dir+'/Master Modeler Competition 2021 - ERASE - FB post collection (1_2017 to current).csv'
+original_data = dir+'/Master Modeler Competition 2021 - ERASE - FB post collection (1_2017 to current).csv'
 list_of_dct = []
+list_of_filtered = []
 unavailable_json = []
 
 # Events
@@ -21,8 +22,10 @@ unavailable_json = []
 # March Madness: second half of March + first week of April; 2020 cancelled
 # July 30 World Day Against Trafficking in Person
 
-engagement = pd.read_csv(engagement_data, usecols=['URL', 'total engagement', 'engagement rate', 'reactions', 'shares', 'comments'])
-engagement = engagement.rename({"total engagement": "total_engagement", "engagement rate": "engagement_rate"}, axis=1)
+original = pd.read_csv(original_data, usecols=['URL', 'date', 'total engagement', 'engagement rate', 'reactions', 'shares', 'comments'])
+original = original.rename({'date': 'original_date',
+                            "total engagement": "total_engagement",
+                            "engagement rate": "engagement_rate"}, axis=1)
 
 
 class MediaTypeError(Exception):
@@ -44,8 +47,18 @@ for file in filter_files:
         try:
             dct = json.load(f)
             new_dct = dct
-            new_dct['date'] = dct['created_time'][0:10]
-            # keep date as string bcs datetime format is not supported by JSON
+
+            # check url from json and original data
+            url1 = new_dct['url']
+            url2 = original.loc[pd.to_numeric(filename[:-5])]['URL']
+            # if urlparse(url1).netloc != urlparse(url2).netloc:
+            if url1 != url2:
+                raise URLMatchError
+            else:
+                # engagements
+                new_dct.update(original.loc[pd.to_numeric(filename[:-5]), original.columns != 'URL'])
+
+            new_dct['date'] = dct['created_time'][0:10]     # keep date as string bcs datetime format is not supported by JSON
             new_dct['date_dt'] = pd.to_datetime(new_dct['date'])
 
             # day of week
@@ -77,31 +90,50 @@ for file in filter_files:
                 new_dct['event'] = 1
 
             # season
+            new_dct['season'] = 3
             new_dct['winter'] = 0
             new_dct['spring'] = 0
             new_dct['summer'] = 0
             if new_dct['date_dt'].month == 12 or new_dct['date_dt'].month <= 2:
                 new_dct['winter'] = 1
+                new_dct['season'] = 0
             elif 3 <= new_dct['date_dt'].month <= 5:
                 new_dct['spring'] = 1
+                new_dct['season'] = 1
             elif 6 <= new_dct['date_dt'].month <= 8:
                 new_dct['summer'] = 1
+                new_dct['season'] = 2
 
-            # time of day
-            new_dct['hour'] = dct['created_time'][11:13]
+            # time of day using original_date
+            new_dct['hour'] = dct['original_date'][13:-3]
             new_dct['hour'] = pd.to_numeric(new_dct['hour'])
+            new_dct['time_day'] = 0
             new_dct['morning'] = 0
             new_dct['afternoon'] = 0
             new_dct['evening'] = 0
             if 6 <= new_dct['hour'] < 12:
                 new_dct['morning'] = 1
+                new_dct['time_day'] = 1
             elif 12 <= new_dct['hour'] < 18:
                 new_dct['afternoon'] = 1
+                new_dct['time_day'] = 2
             elif 18 <= new_dct['hour'] <= 23:
                 new_dct['evening'] = 1
+                new_dct['time_day'] = 3
 
             # remove 'date_dt' bcs it is not supported by JSON
             new_dct.pop('date_dt')
+
+            # emojis, mentions, names
+            new_dct['emoji_num'] = 0
+            new_dct['mention_num'] = 0
+            new_dct['name_num'] = 0
+            if 'emojis' in dct.keys() and dct['emojis'] is not None:
+                new_dct['emoji_num'] = len(dct['emojis'])
+            if 'mentions' in dct.keys() and dct['mentions'] is not None:
+                new_dct['mention_num'] = len(dct['mentions'])
+            if 'names' in dct.keys() and dct['names'] is not None:
+                new_dct['name_num'] = len(dct['names'])
 
             # media type
             new_dct['share'] = 0
@@ -114,47 +146,37 @@ for file in filter_files:
             new_dct['thumbnail_url'] = []
             if dct['attachments'] is not None:
                 for media in dct['attachments']:
-                    new_dct['media_desc'].append(media['media_description'])
-                    new_dct['thumbnail_url'].append(media['thumbnail_url'])
                     if media['media_type'] in ['avatar', 'profile_media', 'cover_photo']:
                         raise MediaTypeError
+
                     if media['media_type'] == 'share':
                         new_dct['share'] = 1
+                        new_dct['media_desc'] = media['media_description']
+                        new_dct['thumbnail_url'] = media['thumbnail_url']
                         if media['media_url'] is not None:
                             new_dct['share_url'] = media['media_url']
                         else:
                             print('Media URL Error: ', filename, new_dct['url'], 'share_url is missing')
-                    if media['media_type'] in ['photo', 'album', 'new_album']:
+                    elif media['media_type'] in ['photo', 'album', 'new_album']:
                         new_dct['photo'] = 1
+                        new_dct['media_desc'] = media['media_description']
+                        new_dct['thumbnail_url'] = media['thumbnail_url']
                         if media['media_url'] is not None:
                             new_dct['photo_url'] = media['media_url']
                         else:
                             print('Media URL Error: ', filename, new_dct['url'], 'photo_url is missing')
-                    if media['media_type'] in ['video_inline', 'video_direct_response', 'native_templates', 'video', 'map']:
+                    elif media['media_type'] in ['video_inline', 'video_direct_response', 'native_templates', 'video', 'map']:
                         new_dct['video'] = 1
+                        new_dct['media_desc'] = media['media_description']
+                        new_dct['thumbnail_url'] = media['thumbnail_url']
                         if media['media_url'] is not None:
                             new_dct['video_url'] = media['media_url']
                         else:
                             print('Media URL Error: ', filename, new_dct['url'], 'video_url is missing')
+
             new_dct['link'] = 0
-            new_dct['link_url'] = None
             if 'urls' in dct.keys() and dct['urls'] is not None:
-                new_dct['link'] = 1
-                new_dct['link_url'] = dct['urls']
-
-            # check url from json and original data
-            url1 = new_dct['url']
-            url2 = engagement.loc[pd.to_numeric(filename[:-5])]['URL']
-            if urlparse(url1).netloc != urlparse(url2).netloc:
-                raise URLMatchError
-            else:
-                # engagements
-                new_dct.update(engagement.loc[pd.to_numeric(filename[:-5]), engagement.columns != 'URL'])
-
-            # deal with cleaned_text
-            if new_dct['cleaned_message'] is None and 'cleaned_text' in new_dct.keys():
-                new_dct['cleaned_message'] = new_dct['cleaned_text']
-                new_dct['cleaned_text'] = None
+                new_dct['link'] = len(dct['urls'])
 
             out_file = open(out_dir + filename, 'w')
             json.dump(new_dct, out_file, default=np_encoder)
@@ -167,11 +189,6 @@ for file in filter_files:
             print('URL Matching Error: Could not match', filename[:-5], 'in original data')
 
 df = pd.DataFrame(list_of_dct)
-df = df.drop(['cleaned_text'], axis=1)  # drop unused col
-# print(df.head())
-# print(len(df))
-# print(df.columns)
-# print(engagement.head)
 df.to_csv('dataset0313.csv', index=False)  #sep='\t'
 
 
