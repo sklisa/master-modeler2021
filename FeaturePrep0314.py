@@ -9,6 +9,8 @@ import pandas as pd
 import numpy as np
 from urllib.parse import urlparse
 
+# Image processing (photo & thumbnail)
+
 
 dir = os.getcwd()
 in_files = glob.glob(dir+'/PrepData0313/'+'*.json')
