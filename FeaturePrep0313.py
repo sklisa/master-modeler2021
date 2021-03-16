@@ -124,6 +124,17 @@ for file in filter_files:
             # remove 'date_dt' bcs it is not supported by JSON
             new_dct.pop('date_dt')
 
+            # emojis, mentions, names
+            new_dct['emoji_num'] = 0
+            new_dct['mention_num'] = 0
+            new_dct['name_num'] = 0
+            if 'emojis' in dct.keys() and dct['emojis'] is not None:
+                new_dct['emoji_num'] = len(dct['emojis'])
+            if 'mentions' in dct.keys() and dct['mentions'] is not None:
+                new_dct['mention_num'] = len(dct['mentions'])
+            if 'names' in dct.keys() and dct['names'] is not None:
+                new_dct['name_num'] = len(dct['names'])
+
             # media type
             new_dct['share'] = 0
             new_dct['share_url'] = None
@@ -164,10 +175,8 @@ for file in filter_files:
                             print('Media URL Error: ', filename, new_dct['url'], 'video_url is missing')
 
             new_dct['link'] = 0
-            new_dct['link_url'] = None
             if 'urls' in dct.keys() and dct['urls'] is not None:
-                new_dct['link'] = 1
-                new_dct['link_url'] = dct['urls']
+                new_dct['link'] = len(dct['urls'])
 
             out_file = open(out_dir + filename, 'w')
             json.dump(new_dct, out_file, default=np_encoder)

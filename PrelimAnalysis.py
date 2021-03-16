@@ -91,6 +91,3 @@ data0313['date'] = pd.to_datetime(data0313['date'], format="%Y-%m-%d")
 
 
 plt.show()
-
-# print(data0313.dtypes)
-# print(post_date.columns)
