@@ -10,7 +10,7 @@ from urllib.parse import urlparse
 dir = os.getcwd()
 filter_files = glob.glob(dir+'/FilteredData/'+'*.json')
 out_dir = dir+'/PrepData0313/'
-engagement_data = dir+'/Master Modeler Competition 2021 - ERASE - FB post collection (1_2017 to current).csv'
+original_data = dir+'/Master Modeler Competition 2021 - ERASE - FB post collection (1_2017 to current).csv'
 list_of_dct = []
 list_of_filtered = []
 unavailable_json = []
@@ -22,8 +22,10 @@ unavailable_json = []
 # March Madness: second half of March + first week of April; 2020 cancelled
 # July 30 World Day Against Trafficking in Person
 
-engagement = pd.read_csv(engagement_data, usecols=['URL', 'total engagement', 'engagement rate', 'reactions', 'shares', 'comments'])
-engagement = engagement.rename({"total engagement": "total_engagement", "engagement rate": "engagement_rate"}, axis=1)
+original = pd.read_csv(original_data, usecols=['URL', 'date', 'total engagement', 'engagement rate', 'reactions', 'shares', 'comments'])
+original = original.rename({'date': 'original_date',
+                            "total engagement": "total_engagement",
+                            "engagement rate": "engagement_rate"}, axis=1)
 
 
 class MediaTypeError(Exception):
@@ -45,8 +47,18 @@ for file in filter_files:
         try:
             dct = json.load(f)
             new_dct = dct
-            new_dct['date'] = dct['created_time'][0:10]
-            # keep date as string bcs datetime format is not supported by JSON
+
+            # check url from json and original data
+            url1 = new_dct['url']
+            url2 = original.loc[pd.to_numeric(filename[:-5])]['URL']
+            # if urlparse(url1).netloc != urlparse(url2).netloc:
+            if url1 != url2:
+                raise URLMatchError
+            else:
+                # engagements
+                new_dct.update(original.loc[pd.to_numeric(filename[:-5]), original.columns != 'URL'])
+
+            new_dct['date'] = dct['created_time'][0:10]     # keep date as string bcs datetime format is not supported by JSON
             new_dct['date_dt'] = pd.to_datetime(new_dct['date'])
 
             # day of week
@@ -78,28 +90,36 @@ for file in filter_files:
                 new_dct['event'] = 1
 
             # season
+            new_dct['season'] = 3
             new_dct['winter'] = 0
             new_dct['spring'] = 0
             new_dct['summer'] = 0
             if new_dct['date_dt'].month == 12 or new_dct['date_dt'].month <= 2:
                 new_dct['winter'] = 1
+                new_dct['season'] = 0
             elif 3 <= new_dct['date_dt'].month <= 5:
                 new_dct['spring'] = 1
+                new_dct['season'] = 1
             elif 6 <= new_dct['date_dt'].month <= 8:
                 new_dct['summer'] = 1
+                new_dct['season'] = 2
 
-            # time of day
-            new_dct['hour'] = dct['created_time'][11:13]
+            # time of day using original_date
+            new_dct['hour'] = dct['original_date'][13:-3]
             new_dct['hour'] = pd.to_numeric(new_dct['hour'])
+            new_dct['time_day'] = 0
             new_dct['morning'] = 0
             new_dct['afternoon'] = 0
             new_dct['evening'] = 0
             if 6 <= new_dct['hour'] < 12:
                 new_dct['morning'] = 1
+                new_dct['time_day'] = 1
             elif 12 <= new_dct['hour'] < 18:
                 new_dct['afternoon'] = 1
+                new_dct['time_day'] = 2
             elif 18 <= new_dct['hour'] <= 23:
                 new_dct['evening'] = 1
+                new_dct['time_day'] = 3
 
             # remove 'date_dt' bcs it is not supported by JSON
             new_dct.pop('date_dt')
@@ -148,16 +168,6 @@ for file in filter_files:
             if 'urls' in dct.keys() and dct['urls'] is not None:
                 new_dct['link'] = 1
                 new_dct['link_url'] = dct['urls']
-
-            # check url from json and original data
-            url1 = new_dct['url']
-            url2 = engagement.loc[pd.to_numeric(filename[:-5])]['URL']
-            # if urlparse(url1).netloc != urlparse(url2).netloc:
-            if url1 != url2:
-                raise URLMatchError
-            else:
-                # engagements
-                new_dct.update(engagement.loc[pd.to_numeric(filename[:-5]), engagement.columns != 'URL'])
 
             out_file = open(out_dir + filename, 'w')
             json.dump(new_dct, out_file, default=np_encoder)
