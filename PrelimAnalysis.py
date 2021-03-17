@@ -2,10 +2,12 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+import os
+from scipy import stats
 
-
-data0313 = pd.read_csv('dataset0313.csv')
-
+dir = os.getcwd()
+out_dir = dir+'/PrelimAnalysisChart/'
+data0313 = pd.read_csv('dataset0315.csv')
 data0313['date'] = pd.to_datetime(data0313['date'], format="%Y-%m-%d")
 
 # post freq by month (ts) -----------------
@@ -44,7 +46,7 @@ data0313['date'] = pd.to_datetime(data0313['date'], format="%Y-%m-%d")
 # plt.xticks(np.arange(7), ['Mon', 'Tue', 'Wed', 'Thur', 'Fri', 'Sat', 'Sun'])
 # plt.ylabel('Number of Posts')
 # plt.title('Number of Posts by Day of Week')
-# plt.savefig("posts_by_weekday.png")
+# plt.savefig(out_dir+"posts_by_weekday.png")
 
 
 # post freq by month -----------------
@@ -53,7 +55,7 @@ data0313['date'] = pd.to_datetime(data0313['date'], format="%Y-%m-%d")
 # plt.xlabel('Month')
 # plt.ylabel('Number of Posts')
 # plt.title('Number of Posts by Month')
-# plt.savefig("posts_by_month.png")
+# plt.savefig(out_dir+"posts_by_month.png")
 
 
 # post freq by season -----------------
@@ -61,7 +63,7 @@ data0313['date'] = pd.to_datetime(data0313['date'], format="%Y-%m-%d")
 # ax = sns.histplot(data=data0313, x='season', stat='frequency', bins=4, discrete=True)
 # ax.set(xlabel='Season', ylabel='Number of Posts', title='Number of Posts by Season')
 # plt.xticks(np.arange(4), ['Winter', 'Spring', 'Summer', 'Fall'])
-# plt.savefig("posts_by_season.png")
+# plt.savefig(out_dir+"posts_by_season.png")
 
 
 # post freq by time of day -----------------
@@ -69,7 +71,7 @@ data0313['date'] = pd.to_datetime(data0313['date'], format="%Y-%m-%d")
 # ax = sns.histplot(data=data0313, x='time_day', stat='frequency', bins=4, discrete=True)
 # ax.set(xlabel='Time of Day', ylabel='Number of Posts', title='Number of Posts by Time of Day')
 # plt.xticks(np.arange(4), ['Dawn', 'Morning', 'Afternoon', 'Evening'])
-# plt.savefig("posts_by_time_day.png")
+# plt.savefig(out_dir+"posts_by_time_day.png")
 
 
 # engagement rate hist --------------
@@ -78,7 +80,7 @@ data0313['date'] = pd.to_datetime(data0313['date'], format="%Y-%m-%d")
 # plt.xlabel('Engagement Rate')
 # plt.ylabel('Number of Posts')
 # plt.title('Engagement Rate Distribution')
-# plt.savefig("engagement_rate_hist.png")
+# plt.savefig(out_dir+"engagement_rate_hist.png")
 
 
 # engagement rate hist (removing outlier) --------------
@@ -87,7 +89,35 @@ data0313['date'] = pd.to_datetime(data0313['date'], format="%Y-%m-%d")
 # plt.xlabel('Engagement Rate')
 # plt.ylabel('Number of Posts')
 # plt.title('Engagement Rate Distribution (Under 2000)')
-# plt.savefig("engagement_rate_hist<2000.png")
+# plt.savefig(out_dir+"engagement_rate_hist<2000.png")
+
+
+# total engagement hist --------------
+# plt.figure(figsize=(8, 5))
+# sns.histplot(data=data0313, x='total_engagement')
+# plt.xlabel('Total Engagement')
+# plt.ylabel('Number of Posts')
+# plt.title('Total Engagement Distribution')
+# plt.savefig(out_dir+"total_engagement_hist.png")
+
+
+# total engagement hist --------------
+# plt.figure(figsize=(8, 5))
+# sns.histplot(data=data0313.loc[data0313['total_engagement'] <= 600], x='total_engagement')
+# plt.xlabel('Total Engagement')
+# plt.ylabel('Number of Posts')
+# plt.title('Total Engagement Distribution (Under 600)')
+# plt.savefig(out_dir+"total_engagement_hist<600.png")
+
+
+# Examine engagement quantile
+variable = 'total_engagement'
+# plt.boxplot(data0313[variable])
+outlier = data0313[variable].loc[np.abs(stats.zscore(data0313[variable])) >= 3]
+print(variable, len(outlier), 'outlier removed: \n', outlier)
+outlier_rm = data0313[np.abs(stats.zscore(data0313[variable])) < 3]
+quantile = outlier_rm[variable].quantile([.1, .25, .5, .75, .9])
+print('Quantile after outlier removed: \n', quantile)
 
 
 plt.show()
