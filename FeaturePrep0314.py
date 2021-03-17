@@ -66,6 +66,8 @@ def main():
             filename = os.path.basename(file)[:-5]    # only number
             try:
                 dct = json.load(f)
+
+                # Extract from photo
                 # if dct['photo_url'] is not None:
                 #     if type(dct['photo_url']) is str:   # single image
                 #         print(filename, 'has one image')
@@ -82,22 +84,25 @@ def main():
                 #     # print(new_dct)
                 #     list_of_dct.append(new_dct)
 
-                if dct['thumbnail_url'] is not None:
-                    if type(dct['thumbnail_url']) is str:
-                        image_url = dct['thumbnail_url']
-                        face_present = detect_print(image_url, filename+'.png', tn_out_dir)
-                    else:
-                        print(filename, 'thumbnail is not str but [], pass')
-                    new_dct = {'json_id': filename, 'face_present': face_present}
-                    list_of_dct2.append(new_dct)
+                # Extract from thumbnail
+                # if dct['thumbnail_url'] is not None:
+                #     if type(dct['thumbnail_url']) is str:
+                #         image_url = dct['thumbnail_url']
+                #         face_present = detect_print(image_url, filename+'.png', tn_out_dir)
+                #     else:
+                #         print(filename, 'thumbnail is not str but [], pass')
+                #     new_dct = {'json_id': filename, 'face_present': face_present}
+                #     list_of_dct2.append(new_dct)
+
             except JSONDecodeError:
                 unavailable_json.append(filename)
 
     cv2.destroyAllWindows()
     # df = pd.DataFrame(list_of_dct)
     # df.to_csv('json_face.csv', index=False)
-    df2 = pd.DataFrame(list_of_dct2)
-    df2.to_csv('json_tn_face.csv', index=False)
+    # df2 = pd.DataFrame(list_of_dct2)
+    # df2.to_csv('json_tn_face.csv', index=False)
+
     print(unavailable_json)
 
 

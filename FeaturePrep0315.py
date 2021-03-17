@@ -8,6 +8,10 @@ from skimage import io
 import pandas as pd
 import numpy as np
 from urllib.parse import urlparse
+from urllib.request import urlopen
+from datetime import timedelta
+from xml.dom.minidom import parseString
+import requests
 
 # Image processing (photo & thumbnail)
 
@@ -45,24 +49,28 @@ for file in in_files:
             dct = json.load(f)
             new_dct = dct
 
-            new_dct['face_present'] = 0
-            # print(json_face[json_face['json_id']== 1618])
-            if pd.to_numeric(filename[:-5]) in list(json_face['json_id']):
-                # print(filename)
-                # print(json_face['face_present'].loc[json_face['json_id'] == pd.to_numeric(filename[:-5])].values[0])
-                if json_face['face_present'].loc[json_face['json_id'] == pd.to_numeric(filename[:-5])].values[0] == 1:
-                    new_dct['face_present'] = 1
-                elif json_face['face_present'].loc[json_face['json_id'] == pd.to_numeric(filename[:-5])].values[0] == 2:
-                    new_dct['face_present'] = 2
-                    list_of_modified.append(filename)
-            out_file = open(out_dir + filename, 'w')
-            json.dump(new_dct, out_file)
-            list_of_dct.append(new_dct)
+            # new_dct['face_present'] = 0
+            # if pd.to_numeric(filename[:-5]) in list(json_face['json_id']):
+            #     if json_face['face_present'].loc[json_face['json_id'] == pd.to_numeric(filename[:-5])].values[0] == 1:
+            #         new_dct['face_present'] = 1
+            #     elif json_face['face_present'].loc[json_face['json_id'] == pd.to_numeric(filename[:-5])].values[0] == 2:
+            #         new_dct['face_present'] = 2
+            #         list_of_modified.append(filename)
+
+            # Extract video
+            # if new_dct['video'] == 1:
+            #     url = new_dct['video_url']
+            #     print(url)
+            #     ???????????
+
+            # out_file = open(out_dir + filename, 'w')
+            # json.dump(new_dct, out_file)
+            # list_of_dct.append(new_dct)
         except JSONDecodeError:
             unavailable_json.append(filename)
 
 df = pd.DataFrame(list_of_dct)
 print(len(list_of_modified))  # 746 face_present==1; 65 face_present==2
-df.to_csv('dataset0315.csv', index=False)  # sep='\t'
+# df.to_csv('dataset0315.csv', index=False)  # sep='\t'
 
 
