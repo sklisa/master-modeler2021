@@ -64,3 +64,21 @@ PrelimAnalysis
 		0.75    28.0
 		0.90    62.0
 		Name: total_engagement
+
+	Correlation Matrix
+		> 0.8
+		total_engagement engagement_rate
+		total_engagement shares
+		engagement_rate total_engagement
+		engagement_rate shares
+		shares total_engagement
+		shares engagement_rate
+		hour time_day
+		time_day hour
+		time_day morning
+		time_day evening
+		morning time_day
+		evening time_day
+		engagement_rate_label total_engagement_label
+		total_engagement_label engagement_rate_label
+
