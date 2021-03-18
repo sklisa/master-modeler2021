@@ -6,6 +6,9 @@ import pandas as pd
 import numpy as np
 from urllib.parse import urlparse
 
+# Feature preprocessing
+# Output - 0313 data
+
 
 dir = os.getcwd()
 filter_files = glob.glob(dir+'/FilteredData/'+'*.json')

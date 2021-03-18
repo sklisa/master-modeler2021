@@ -33,7 +33,52 @@ media_type summary
 ^[link]											=> [link], added based on 'urls' column
 
 
-FeaturePrep0313.py - extract date, time, media type & url; merge engagements from original data
-	creates PrepData0313, dataset0313.csv
+FeaturePrep0313.py - Extract date, time, media type & url; merge engagements from original data
+	create PrepData0313, dataset0313.csv
 	total #obs 2093
+
+
+FeaturePrep0314.py - Use OpenCV to extract image feature from photo and thumbnails
+	create json_face, json_tn_face
+
+
+FeaturePrep0315.py - Incorporate face features into 0313 data
+	create PrepData0315, dataset0315.csv
+
+
+PrelimAnalysis
+	engagement_rate 16 outlier removed
+	Quantile after outlier removed: 
+		0.10     13.592867
+		0.25     27.842227
+		0.50     54.962819
+		0.75    108.173077
+		0.90    214.062232
+		Name: engagement_rate
+
+	total_engagement 13 outlier removed
+	Quantile after outlier removed: 
+		0.10     3.0
+		0.25     6.0
+		0.50    13.0
+		0.75    28.0
+		0.90    62.0
+		Name: total_engagement
+
+	Correlation Matrix
+		> 0.8
+		total_engagement engagement_rate
+		total_engagement shares
+		engagement_rate total_engagement
+		engagement_rate shares
+		shares total_engagement
+		shares engagement_rate
+		hour time_day
+		time_day hour
+		time_day morning
+		time_day evening
+		morning time_day
+		evening time_day
+		engagement_rate_label total_engagement_label
+		total_engagement_label engagement_rate_label
 
