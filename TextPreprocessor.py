@@ -68,6 +68,14 @@ class TextPreprocessor:
                 celebrities.append(w.text)
         return celebrities if len(celebrities)>0 else None
     
+    def retrieve_events(self):
+        events = []
+        doc = self.nlp(self.text)
+        for w in doc.ents:
+            if w.label_ == 'EVENT':
+                events.append(w.text)
+        return events if len(events)>0 else None
+    
     def retrieve_mentions(self):
         mentions = re.findall(pattern=get_mentions_pattern(), string=self.text)
         mentions = [i.replace('@', '') for i in mentions if len(i)>0]
