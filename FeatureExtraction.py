@@ -37,7 +37,7 @@ def load_dct():
                 new_dct['Thur'] = dct['Thur']
                 new_dct['Fri'] = dct['Fri']
                 new_dct['Sat'] = dct['Sat']
-                # new_dct['event'] = dct['event']
+                new_dct['special_day'] = dct['special_day']
                 new_dct['winter'] = dct['winter']
                 new_dct['summer'] = dct['summer']
                 new_dct['morning'] = dct['morning']

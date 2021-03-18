@@ -8,12 +8,10 @@ import json
 from json.decoder import JSONDecodeError
 import glob
 
-
 dir = os.getcwd()
-out_dir = dir+'/PrelimAnalysisChart/'
+out_dir = dir + '/PrelimAnalysisChart/'
 data_input = pd.read_csv('dataset0316.csv')
 data_input['date'] = pd.to_datetime(data_input['date'], format="%Y-%m-%d")
-
 
 # post freq by month (ts) -----------------
 # post_date = data_input.groupby(pd.Grouper(key='date', freq='M')).size().to_frame(name='freq').reset_index()
@@ -115,23 +113,44 @@ data_input['date'] = pd.to_datetime(data_input['date'], format="%Y-%m-%d")
 # plt.savefig(out_dir+"total_engagement_hist<600.png")
 
 
-
 # Correlation
 # print(data_input.columns)
-corr_var = data_input[['total_engagement', 'engagement_rate', 'reactions',
-       'shares', 'comments', 'day_week', 'Mon', 'Tue', 'Wed', 'Thur',
-       'Fri', 'Sat', 'event', 'season', 'winter', 'spring', 'summer', 'hour',
-       'time_day', 'morning', 'afternoon', 'evening', 'emoji_num',
-       'mention_num', 'name_num', 'share', 'photo', 'video', 'link',
-       'face_present', 'engagement_rate_label', 'total_engagement_label']]
+# corr_var = data_input[['total_engagement', 'engagement_rate', 'reactions',
+#        'shares', 'comments', 'day_week', 'Mon', 'Tue', 'Wed', 'Thur',
+#        'Fri', 'Sat', 'event', 'season', 'winter', 'spring', 'summer', 'hour',
+#        'time_day', 'morning', 'afternoon', 'evening', 'emoji_num',
+#        'mention_num', 'name_num', 'share', 'photo', 'video', 'link',
+#        'face_present', 'engagement_rate_label', 'total_engagement_label']]
+#
+# pear = corr_var.corr(method='pearson')
+# sns.heatmap(pear, cmap="YlGnBu", xticklabels=True, yticklabels=True)
+# plt.gcf().subplots_adjust(left=0.3, bottom=0.3)
+# plt.savefig(out_dir+"corr_mat.png", dpi=300)
+# abs_corr = pear.abs()
+# for a in range(len(abs_corr)):
+#     for b in range(len(abs_corr)):
+#          if abs_corr.iloc[a, b] > 0.8 and a != b:
+#                 print(corr_var.columns[a], corr_var.columns[b])
+# plt.show()
 
-pear = corr_var.corr(method='pearson')
-sns.heatmap(pear, cmap="YlGnBu", xticklabels=True, yticklabels=True)
-plt.gcf().subplots_adjust(left=0.3, bottom=0.3)
-plt.savefig(out_dir+"corr_mat.png", dpi=300)
-abs_corr = pear.abs()
-for a in range(len(abs_corr)):
-    for b in range(len(abs_corr)):
-         if abs_corr.iloc[a, b] > 0.8 and a != b:
-                print(corr_var.columns[a], corr_var.columns[b])
-plt.show()
+
+# Find outlier
+# print('Outlier by engagement_rate')
+# outlier1 = data_input.loc[np.abs(stats.zscore(data_input['engagement_rate'])) >= 3]
+# print(outlier1)
+# print('Outlier by total_engagement')
+# outlier2 = data_input.loc[np.abs(stats.zscore(data_input['total_engagement'])) >= 3]
+# print(outlier2)
+# merge1 = pd.merge(outlier1, outlier2, how='outer', on='url')
+# print('Union of outliers', len(merge1))
+# print(merge1)
+# merge2 = pd.merge(outlier1, outlier2, how='inner', on='url')
+# print('Intersection of outliers', len(merge2))
+# print(merge2)
+#
+# merge1.to_csv('union_outliers.csv')
+# merge2.to_csv('inters_outliers.csv')
+
+
+
+# Regression
