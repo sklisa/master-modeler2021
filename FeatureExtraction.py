@@ -51,8 +51,14 @@ def load_dct():
                 new_dct['video'] = dct['video']
                 new_dct['link'] = dct['link']
                 new_dct['face_present'] = dct['face_present']
+                new_dct['face_vague'] = dct['face_vague']
+                new_dct['engagement_rate'] = dct['engagement_rate']
+                new_dct['total_engagement'] = dct['total_engagement']
                 new_dct['engagement_rate_label'] = dct['engagement_rate_label']
                 new_dct['total_engagement_label'] = dct['total_engagement_label']
+                new_dct['engagement_rate_label2'] = dct['engagement_rate_label2']
+                new_dct['total_engagement_label2'] = dct['total_engagement_label2']
+                new_dct['weighted_engagement'] = dct['weighted_engagement']
                 dct_list.append(new_dct)
             except KeyError as e:
                 print(str(e))
@@ -121,12 +127,23 @@ def var_sentiment_score(corpus):
 
 def seperate_label(df, mode):
     df.drop(['message', 'cleaned_message', 'message_tags'], axis=1, inplace=True)
-    if mode == 'engagement_rate':
+    to_be_dropped = ['total_engagement', 'engagement_rate', 'engagement_rate_label', 'total_engagement_label',
+                    'engagement_rate_label2', 'total_engagement_label2', 'weighted_engagement']
+    if mode == 'engagement_rate_label':
         y = df['engagement_rate_label']
-        df.drop(['engagement_rate_label', 'total_engagement_label'], axis=1, inplace=True)
-    elif mode == 'total_engagement':
+    elif mode == 'total_engagement_label':
         y = df['total_engagement_label']
-        df.drop(['engagement_rate_label', 'total_engagement_label'], axis=1, inplace=True)
+    elif mode == 'engagement_rate_label2':
+        y = df['engagement_rate_label2']
+    elif mode == 'total_engagement_label2':
+        y = df['total_engagement_label2']
+    elif mode == 'engagement_rate':
+        y = df['engagement_rate']
+    elif mode == 'total_engagement':
+        y = df['total_engagement']
+    elif mode == 'weighted_engagement':
+        y = df['weighted_engagement']
+    df.drop(to_be_dropped, axis=1, inplace=True)
     return df, y
 
 def scale(X):

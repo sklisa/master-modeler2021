@@ -7,6 +7,10 @@ from scipy import stats
 import json
 from json.decoder import JSONDecodeError
 import glob
+from sklearn.linear_model import LinearRegression
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import StandardScaler
+
 
 dir = os.getcwd()
 out_dir = dir + '/PrelimAnalysisChart/'
@@ -154,3 +158,26 @@ data_input['date'] = pd.to_datetime(data_input['date'], format="%Y-%m-%d")
 
 
 # Regression
+print(data_input.columns)
+features = data_input[['Mon', 'Tue', 'Wed', 'Thur',
+       'Fri', 'Sat', 'winter', 'spring', 'summer',
+       'morning', 'afternoon', 'evening', 'emoji_num',
+       'mention_num', 'name_num', 'share', 'photo',
+       'video', 'link','face_present', 'face_vague',
+       'recovered', 'missing', 'asterisk','special_day']]
+
+# 'total_engagement', 'engagement_rate','reactions',
+# 'shares', 'comments','engagement_rate_label', 'total_engagement_label',
+# 'engagement_rate_label2', 'total_engagement_label2', 'weighted_engagement'
+
+# train_bert = pd.read_csv('train_bert_PCA.csv')
+# features = train_bert[[train_bert.columns != '']]
+
+output = 'reactions'
+
+scaler = MinMaxScaler()
+feat_scaled = scaler.fit_transform(X=features, y=data_input[output])
+# print(feat_scaled)
+reg = LinearRegression().fit(X=feat_scaled, y=data_input[output])
+print(output, reg.score(X=feat_scaled, y=data_input[output]))
+print(output, reg.coef_)

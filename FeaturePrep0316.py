@@ -71,6 +71,7 @@ def label(quantile1, quantile2):
                 new_dct['recovered'] = 0
                 new_dct['missing'] = 0
                 new_dct['asterisk'] = 0
+                new_dct['federal'] = 0
 
                 if new_dct['message'] is not None:
                     if 'missing' in new_dct['message'].lower():
@@ -81,6 +82,10 @@ def label(quantile1, quantile2):
                         print('recovered')
                         new_dct['recovered'] = 1
 
+                    if 'federal' in new_dct['message'].lower():
+                        print('federal')
+                        new_dct['federal'] = 1
+
                     if '*' in new_dct['message']:
                         print('asterisk')
                         new_dct['asterisk'] = 1
@@ -88,6 +93,12 @@ def label(quantile1, quantile2):
                 # rename event to special_day
                 new_dct['special_day'] = new_dct['event']
                 new_dct.pop('event')
+
+                # face_present == 2
+                new_dct['face_vague'] = 0
+                if new_dct['face_present'] == 2:
+                    new_dct['face_vague'] = 1
+                    new_dct['face_present'] = 1
 
                 out_file = open(out_data_dir + filename, 'w')
                 json.dump(new_dct, out_file)
