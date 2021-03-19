@@ -12,8 +12,10 @@ from sklearn.dummy import DummyClassifier
 from sklearn.naive_bayes import GaussianNB
 from sklearn import metrics
 
-train = pd.read_csv('train_bert_PCA.csv')
-test = pd.read_csv('test_bert_PCA.csv')
+train = pd.read_csv('train_bert_PCA_text.csv')
+test = pd.read_csv('test_bert_PCA_text.csv')
+print('columns:')
+print(test.columns)
 
 output_label='engagement_rate'
 

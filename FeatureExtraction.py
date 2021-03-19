@@ -195,6 +195,7 @@ if __name__ == '__main__':
     
     # calculate length of post
     df_lop = length_of_post(raw_texts)
+
     df = pd.concat([df, df_bert, df_sentiment_score, df_bow_hashtags, df_lop], axis=1)
     X, y = seperate_label(df, 'engagement_rate')
     rescaled_X = scale(X)
@@ -204,3 +205,27 @@ if __name__ == '__main__':
     train, test = train_test_split(PCA_dataset, test_size=0.3, shuffle=True, random_state=123)
     train.to_csv('train_bert_PCA.csv')
     test.to_csv('test_bert_PCA.csv')
+
+
+# ----- PCA only on text features ------
+
+    # df_text = pd.concat([df_bert, df_sentiment_score, df_bow_hashtags, df_lop], axis=1)
+    # rescaled_text = scale(df_text)
+    # PCA_X = dim_reduction(rescaled_text)
+    # df = pd.concat([df, pd.DataFrame(PCA_X)], axis=1)
+    # X, y = seperate_label(df, 'engagement_rate')
+    # rescaled_X = scale(X)
+    # PCA_dataset = pd.concat([pd.DataFrame(rescaled_X), y], axis=1)
+    # train, test = train_test_split(PCA_dataset, test_size=0.3, shuffle=True, random_state=123)
+    # train.to_csv('train_bert_PCA_text.csv')
+    # test.to_csv('test_bert_PCA_text.csv')
+
+
+# ----- w/o text and PCA ------
+#     df = pd.concat([df, df_sentiment_score, df_lop], axis=1)
+#     X, y = seperate_label(df, 'engagement_rate')
+#     rescaled_X = scale(X)
+#     PCA_dataset = pd.concat([pd.DataFrame(rescaled_X), y], axis=1)
+#     train, test = train_test_split(PCA_dataset, test_size=0.3, shuffle=True, random_state=123)
+#     train.to_csv('train_bert_PCA_text.csv')
+#     test.to_csv('test_bert_PCA_text.csv')
