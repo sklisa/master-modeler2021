@@ -3,7 +3,7 @@
 import glob
 import os
 import json
-from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.feature_extraction.text import CountVectorizer
 import pandas as pd
 from TextPreprocessor import TextPreprocessor
 import spacy
@@ -11,7 +11,7 @@ from sentence_transformers import SentenceTransformer
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 from sklearn.decomposition import PCA
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import MinMaxScaler, StandardScaler
+from sklearn.preprocessing import scale, StandardScaler, MinMaxScaler
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -23,58 +23,87 @@ analyzer = SentimentIntensityAnalyzer()
 
 def load_dct():
     dct_list = []
+    message_dct = {}
     for file in files:
         new_dct = {}
         with open(file, 'r') as f:
+            file_key = int(os.path.basename(file)[:-5])
             dct = json.load(f)
             try:
-                new_dct['message'] = dct['message']
-                new_dct['cleaned_message'] = dct['cleaned_message']
-                new_dct['message_tags'] = dct['message_tags']
-                new_dct['Mon'] = dct['Mon']
-                new_dct['Tue'] = dct['Tue']
-                new_dct['Wed'] = dct['Wed']
-                new_dct['Thur'] = dct['Thur']
-                new_dct['Fri'] = dct['Fri']
-                new_dct['Sat'] = dct['Sat']
-                new_dct['special_day'] = dct['special_day']
-                new_dct['winter'] = dct['winter']
-                new_dct['summer'] = dct['summer']
-                new_dct['morning'] = dct['morning']
-                new_dct['afternoon'] = dct['afternoon']
-                new_dct['evening'] = dct['evening']
-                new_dct['emoji_num'] = dct['emoji_num']
-                new_dct['mention_num'] = dct['mention_num']
-                new_dct['name_num'] = dct['name_num']
-                new_dct['share'] = dct['share']
-                new_dct['photo'] = dct['photo']
-                new_dct['video'] = dct['video']
-                new_dct['link'] = dct['link']
-                new_dct['face_present'] = dct['face_present']
-                new_dct['face_vague'] = dct['face_vague']
-                new_dct['engagement_rate'] = dct['engagement_rate']
-                new_dct['total_engagement'] = dct['total_engagement']
-                new_dct['engagement_rate_label'] = dct['engagement_rate_label']
-                new_dct['total_engagement_label'] = dct['total_engagement_label']
-                new_dct['engagement_rate_label2'] = dct['engagement_rate_label2']
-                new_dct['total_engagement_label2'] = dct['total_engagement_label2']
-                new_dct['weighted_engagement'] = dct['weighted_engagement']
+                new_dct['key'] = file_key
+                # new_dct['message'] = dct['message']
+                # new_dct['cleaned_message'] = dct['cleaned_message']
+                # new_dct['message_tags'] = dct['message_tags']
+                new_dct['Mon'] = int(dct['Mon'])
+                new_dct['Tue'] = int(dct['Tue'])
+                new_dct['Wed'] = int(dct['Wed'])
+                new_dct['Thur'] = int(dct['Thur'])
+                new_dct['Fri'] = int(dct['Fri'])
+                new_dct['Sat'] = int(dct['Sat'])
+                # new_dct['event'] = dct['event']
+                new_dct['winter'] = int(dct['winter'])
+                new_dct['summer'] = int(dct['summer'])
+                new_dct['morning'] = int(dct['morning'])
+                new_dct['afternoon'] = int(dct['afternoon'])
+                new_dct['evening'] = int(dct['evening'])
+                new_dct['emoji_num'] = int(dct['emoji_num'])
+                new_dct['mention_num'] = int(dct['mention_num'])
+                new_dct['name_num'] = int(dct['name_num'])
+                new_dct['share'] = int(dct['share'])
+                new_dct['photo'] = int(dct['photo'])
+                new_dct['video'] = int(dct['video'])
+                new_dct['link'] = int(dct['link'])
+                new_dct['face_present'] = int(dct['face_present'])
+                new_dct['face_vague'] = int(dct['face_vague'])
+                new_dct['recovered'] = int(dct['recovered'])
+                new_dct['missing'] = int(dct['missing'])
+                new_dct['asterisk'] = int(dct['asterisk'])
+                new_dct['federal'] = int(dct['federal'])
+                new_dct['engagement_rate_label'] = int(dct['engagement_rate_label'])
+                new_dct['total_engagement_label'] = int(dct['total_engagement_label'])
+                # new_dct['engagement_rate_label2'] = int(dct['engagement_rate_label2'])
+                # new_dct['total_engagement_label2'] = int(dct['total_engagement_label2'])
+                # new_dct['total_engagement'] = int(dct['total_engagement'])
+                # new_dct['engagement_rate'] = int(dct['engagement_rate'])
+                # new_dct['weighted_engagement'] = int(dct['weighted_engagement'])        
                 dct_list.append(new_dct)
+                message_dct[file_key] = (dct['message'], dct['cleaned_message'], dct['message_tags'])
             except KeyError as e:
                 print(str(e))
                 print(file)
-    df = pd.DataFrame(dct_list, columns=dct_list[0].keys())
+    df = pd.DataFrame(dct_list, columns=dct_list[0].keys(), dtype='float64')
+    # df.sort_values(by=['index'])
+    return df, message_dct
+
+def load_sentiment():
+    df = pd.read_csv('SentimentAnalysis.csv', 
+                     usecols=['filename', 'negative_adjectives_component', 'social_order_component', 'action_component', 
+                                                       'positive_adjectives_component', 'joy_component', 'affect_friends_and_family_component', 
+                                                       'fear_and_digust_component', 'politeness_component', 'polarity_nouns_component',
+                                                       'polarity_verbs_component', 'positive_nouns_component', 'respect_component', 'trust_verbs_component',
+                                                       'well_being_component', 'economy_component', 'certainty_component', 'positive_verbs_component', 'objects_component'])
+    df['key'] = df.apply(lambda row: int(row['filename'][:-4]), axis=1)
+    df.drop(columns=['filename'], axis=1, inplace=True)
+    df.fillna(0, inplace=True)
+    df = df.astype('float64')
     return df
 
 def to_list(corpus, ctype):
-    texts = []
-    events = []
-    for i in list(corpus):
+    texts = {}
+    events = {}
+    for key, val in corpus.items():
+        if ctype == 'cleaned_message':
+            i = val[1]
+        elif ctype == 'message':
+            i = val[0]
+        else:
+            i = val[2]
+        # outfile = open(dir+'/MessageContent/'+str(key)+'.txt', 'w')
         if i is None:
-            texts.append('')
+            texts[key] = ' '
         else:
             if ctype == 'cleaned_message':
-                texts.append(' '.join(i))
+                texts[key] = ' '.join(i)
             elif ctype == 'message':
                 pr = TextPreprocessor(i, nlp)
                 pr.remove_urls()
@@ -82,25 +111,31 @@ def to_list(corpus, ctype):
                 pr.remove_hashtags()
                 pr.remove_emojis()
                 pr.remove_special_characters()
-                events.append(len(pr.retrieve_events()) if pr.retrieve_events() is not None else 0)
+                pr.remove_blank_spaces()
+                events[key] = len(pr.retrieve_events()) if pr.retrieve_events() is not None else 0
                 # print(pr.text)
-                texts.append(pr.text)
+                texts[key] = pr.text
             else:
-                texts.append(i)
-    if len(events)>0:
-        df_events = pd.DataFrame(events, columns=['events_num'])
+                texts[key] = ' '.join(i)
+        # outfile.write(texts[key])
+        # outfile.close()
+    if len(events) > 0:
+        df_events = pd.DataFrame(events.items(), columns=['key', 'events_num'])
         return df_events, texts
     return texts
 
-def normalized_BoW(corpus):
-    tv = TfidfVectorizer(
-        binary=False, norm='l1', use_idf=False, smooth_idf=False,
-        lowercase=True, stop_words='english', ngram_range=(1,1))
-    df = pd.DataFrame(tv.fit_transform(corpus).toarray(), columns=tv.get_feature_names())
+def normalized_BoW(corpus, top_n):
+    corpus = list(corpus.values())
+    vectorizer = CountVectorizer(analyzer='word', ngram_range=(1,1), max_features=top_n) 
+    corpus_ngram = vectorizer.fit_transform(corpus)
+    ngram_values = corpus_ngram.toarray()
+    features = vectorizer.vocabulary_
+    df = pd.DataFrame(ngram_values, columns=features)
     return df
 
 def bert_sentence_embedding(corpus):
     # reference: https://www.sbert.net/docs/quickstart.html
+    corpus = list(corpus.values())
     sentence_embeddings = model.encode(corpus)
     num_features = len(sentence_embeddings[0]) # 768
     feature_names = ['embed_'+str(i) for i in range(num_features)]
@@ -108,10 +143,10 @@ def bert_sentence_embedding(corpus):
     return df
 
 def length_of_post(corpus):
-    res = []
-    for i in corpus:
-        res.append(len(i.split()))
-    df = pd.DataFrame(res, columns=['post_len'])
+    res = {}
+    for idx, text in corpus.items():
+        res[idx] = len(text.split())
+    df = pd.DataFrame(res.items(), columns=['key', 'post_len'], dtype='float64')
     return df
 
 def var_sentiment_score(corpus):
@@ -126,30 +161,11 @@ def var_sentiment_score(corpus):
     return df
 
 def seperate_label(df, mode):
-    df.drop(['message', 'cleaned_message', 'message_tags'], axis=1, inplace=True)
-    to_be_dropped = ['total_engagement', 'engagement_rate', 'engagement_rate_label', 'total_engagement_label',
-                    'engagement_rate_label2', 'total_engagement_label2', 'weighted_engagement']
-    if mode == 'engagement_rate_label':
-        y = df['engagement_rate_label']
-    elif mode == 'total_engagement_label':
-        y = df['total_engagement_label']
-    elif mode == 'engagement_rate_label2':
-        y = df['engagement_rate_label2']
-    elif mode == 'total_engagement_label2':
-        y = df['total_engagement_label2']
-    elif mode == 'engagement_rate':
-        y = df['engagement_rate']
-    elif mode == 'total_engagement':
-        y = df['total_engagement']
-    elif mode == 'weighted_engagement':
-        y = df['weighted_engagement']
-    df.drop(to_be_dropped, axis=1, inplace=True)
+    # df.drop(['message', 'cleaned_message', 'message_tags'], axis=1, inplace=True)
+    df.drop(['key'], axis=1, inplace=True)
+    y = df[mode]
+    df.drop(['engagement_rate_label', 'total_engagement_label'], axis=1, inplace=True)
     return df, y
-
-def scale(X):
-    scaler = MinMaxScaler()
-    X_rescaled = scaler.fit_transform(X)
-    return X_rescaled
 
 def dim_reduction(X):
     # pca = PCA().fit(X)
@@ -171,61 +187,49 @@ def dim_reduction(X):
     # plt.text(0.5, 0.85, '95% cut-off threshold', color = 'red', fontsize=16)
     
     # ax.grid(axis='x')
-    plt.show()
+    # plt.show()
+    scaled_X = pd.DataFrame(scale(X),columns=X.columns) 
     pca = PCA(n_components=0.95)
-    pca.fit(X)
-    transformed_X = pca.transform(X)
+    transformed_X = pca.fit_transform(scaled_X)
+    lst = ['PCA_'+str(i) for i in range(len(pca.components_))]
+    print(pd.DataFrame(pca.components_,columns=scaled_X.columns,index=lst))
     return transformed_X
 
 if __name__ == '__main__':
-    df = load_dct()
-    cleaned_texts = to_list(df['cleaned_message'], 'cleaned_message')
-    df_events, raw_texts = to_list(df['message'], 'message')
+    df, message_dct = load_dct()
+    # df.to_csv('dataset_0320.csv', index=False)
+    # cleaned_texts = to_list(message_dct, 'cleaned_message')
+    df_events, raw_texts = to_list(message_dct, 'message')
     # text -> normalized bag-of-words post
-    # df_bow = normalized_BoW(cleaned_texts)
+    # df_bow = normalized_BoW(cleaned_texts, 500)
     # text -> bert sentence embedding
-    df_bert = bert_sentence_embedding(raw_texts)
+    # df_bert = bert_sentence_embedding(raw_texts)
     
     # retrieve sentiment score from the text
-    df_sentiment_score = var_sentiment_score(raw_texts)
+    # df_sentiment_score = var_sentiment_score(raw_texts)
+    
+    # load other sentiment analysis
+    df_sentiment_analysis = load_sentiment()
     
     # categorize the hashtags
-    hashtags = to_list(df['message_tags'], 'cleaned_message')
-    df_bow_hashtags = normalized_BoW(hashtags)
+    # hashtags = to_list(message_dct, 'message_tags')
+    # df_bow_hashtags = normalized_BoW(hashtags, 50)
     
     # calculate length of post
     df_lop = length_of_post(raw_texts)
-
-    df = pd.concat([df, df_bert, df_sentiment_score, df_bow_hashtags, df_lop], axis=1)
-    X, y = seperate_label(df, 'engagement_rate_label2')
-    rescaled_X = scale(X)
-    # dataset = pd.concat([pd.DataFrame(rescaled_X), y], axis=1)
-    PCA_X = dim_reduction(rescaled_X)
-    PCA_dataset = pd.concat([pd.DataFrame(PCA_X), y], axis=1)
-    train, test = train_test_split(PCA_dataset, test_size=0.3, shuffle=True, random_state=123)
-    train.to_csv('train_bert_PCA.csv')
-    test.to_csv('test_bert_PCA.csv')
-
-
-# ----- PCA only on text features ------
-
-    # df_text = pd.concat([df_bert, df_sentiment_score, df_bow_hashtags, df_lop], axis=1)
-    # rescaled_text = scale(df_text)
-    # PCA_X = dim_reduction(rescaled_text)
-    # df = pd.concat([df, pd.DataFrame(PCA_X)], axis=1)
-    # X, y = seperate_label(df, 'engagement_rate')
-    # rescaled_X = scale(X)
-    # PCA_dataset = pd.concat([pd.DataFrame(rescaled_X), y], axis=1)
-    # train, test = train_test_split(PCA_dataset, test_size=0.3, shuffle=True, random_state=123)
-    # train.to_csv('train_bert_PCA_text.csv')
-    # test.to_csv('test_bert_PCA_text.csv')
-
-
-# ----- w/o text and PCA ------
-#     df = pd.concat([df, df_sentiment_score, df_lop], axis=1)
-#     X, y = seperate_label(df, 'engagement_rate')
-#     rescaled_X = scale(X)
-#     PCA_dataset = pd.concat([pd.DataFrame(rescaled_X), y], axis=1)
-#     train, test = train_test_split(PCA_dataset, test_size=0.3, shuffle=True, random_state=123)
-#     train.to_csv('train_bert_PCA_text.csv')
-#     test.to_csv('test_bert_PCA_text.csv')
+    df = df.join(df_sentiment_analysis.set_index('key'), on='key')
+    # df = pd.concat([df, df_bow, df_bow_hashtags], axis=1)
+    df = df.join(df_lop.set_index('key'))
+    df = df.join(df_events.set_index('key'))
+    df = df.fillna(0)
+    df.drop(columns=['key'], axis=1)
+    # df = df.astype('float')
+    # df = pd.concat([df, df_bert, df_sentiment_score, df_bow_hashtags, df_lop], axis=1)
+    X, y = seperate_label(df, 'total_engagement_label')
+    scaled_X = pd.DataFrame(StandardScaler().fit_transform(X),columns=X.columns) 
+    dataset = pd.concat([pd.DataFrame(scaled_X), y], axis=1)
+    # PCA_X = dim_reduction(X)
+    # PCA_dataset = pd.concat([pd.DataFrame(PCA_X), y], axis=1)
+    train, test = train_test_split(dataset, test_size=0.3, shuffle=True, random_state=123)
+    train.to_csv('train_new.csv', index=False)
+    test.to_csv('test_new.csv', index=False)
