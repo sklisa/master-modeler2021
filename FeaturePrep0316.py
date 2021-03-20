@@ -112,6 +112,11 @@ def label(quantile1, quantile2):
                     new_dct['face_vague'] = 1
                     new_dct['face_present'] = 1
 
+                # hashtag_num
+                new_dct['hashtag_num'] = 0
+                if 'message_tags' in dct.keys() and dct['message_tags'] is not None:
+                    new_dct['hashtag_num'] = len(dct['message_tags'])
+
                 out_file = open(out_data_dir + filename, 'w')
                 json.dump(new_dct, out_file)
                 list_of_dct.append(new_dct)

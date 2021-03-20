@@ -49,6 +49,7 @@ def load_dct():
                 new_dct['emoji_num'] = int(dct['emoji_num'])
                 new_dct['mention_num'] = int(dct['mention_num'])
                 new_dct['name_num'] = int(dct['name_num'])
+                new_dct['hashtag_num'] = int(dct['hashtag_num'])
                 new_dct['share'] = int(dct['share'])
                 new_dct['photo'] = int(dct['photo'])
                 new_dct['video'] = int(dct['video'])
@@ -198,6 +199,7 @@ def dim_reduction(X):
 
 if __name__ == '__main__':
     df, message_dct = load_dct()
+
     df.to_csv('dataset_0320.csv', index=False)
     # cleaned_texts = to_list(message_dct, 'cleaned_message')
     # df_events, raw_texts = to_list(message_dct, 'message')

@@ -10,12 +10,16 @@ import glob
 from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.preprocessing import StandardScaler
+import scipy.stats as ss
+from statsmodels.stats.proportion import proportions_ztest
 
 
 dir = os.getcwd()
 out_dir = dir + '/PrelimAnalysisChart/'
-data_input = pd.read_csv('dataset0316.csv')
-data_input['date'] = pd.to_datetime(data_input['date'], format="%Y-%m-%d")
+data_input = pd.read_csv('dataset_0320.csv')
+
+
+# data_input['date'] = pd.to_datetime(data_input['date'], format="%Y-%m-%d")
 
 # post freq by month (ts) -----------------
 # post_date = data_input.groupby(pd.Grouper(key='date', freq='M')).size().to_frame(name='freq').reset_index()
@@ -158,26 +162,58 @@ data_input['date'] = pd.to_datetime(data_input['date'], format="%Y-%m-%d")
 
 
 # Regression
-print(data_input.columns)
-features = data_input[['Mon', 'Tue', 'Wed', 'Thur',
-       'Fri', 'Sat', 'winter', 'spring', 'summer',
-       'morning', 'afternoon', 'evening', 'emoji_num',
-       'mention_num', 'name_num', 'share', 'photo',
-       'video', 'link','face_present', 'face_vague',
-       'recovered', 'missing', 'asterisk','special_day']]
+# print(data_input.columns)
+# features = data_input[['Mon', 'Tue', 'Wed', 'Thur',
+#        'Fri', 'Sat', 'winter', 'spring', 'summer',
+#        'morning', 'afternoon', 'evening', 'emoji_num',
+#        'mention_num', 'name_num', 'share', 'photo',
+#        'video', 'link','face_present', 'face_vague',
+#        'recovered', 'missing', 'asterisk','special_day']]
+#
+# # 'total_engagement', 'engagement_rate','reactions',
+# # 'shares', 'comments','engagement_rate_label', 'total_engagement_label',
+# # 'engagement_rate_label2', 'total_engagement_label2', 'weighted_engagement'
+#
+# # train_bert = pd.read_csv('train_bert_PCA.csv')
+# # features = train_bert[[train_bert.columns != '']]
+#
+# output = 'reactions'
+#
+# scaler = MinMaxScaler()
+# feat_scaled = scaler.fit_transform(X=features, y=data_input[output])
+# # print(feat_scaled)
+# reg = LinearRegression().fit(X=feat_scaled, y=data_input[output])
+# print(output, reg.score(X=feat_scaled, y=data_input[output]))
+# print(output, reg.coef_)
 
-# 'total_engagement', 'engagement_rate','reactions',
-# 'shares', 'comments','engagement_rate_label', 'total_engagement_label',
-# 'engagement_rate_label2', 'total_engagement_label2', 'weighted_engagement'
 
-# train_bert = pd.read_csv('train_bert_PCA.csv')
-# features = train_bert[[train_bert.columns != '']]
+# Statistical test
+pd.set_option('display.max_columns', None)
+df = pd.read_csv('SentimentAnalysis.csv')
+df['key'] = df.apply(lambda row: int(row['filename'][:-4]), axis=1)
+df.drop(columns=['filename'], axis=1, inplace=True)
+df = df.join(data_input.set_index('key'), on='key')
 
-output = 'reactions'
+# x="weighted_engagement_label3", y="positive_adjectives_component"
+output_var = 'weighted_engagement_label3'
+print(df[output_var].unique())
+cat1 = df[df[output_var] == 0]
+cat2 = df[df[output_var] == 1]
+nobs1 = len(cat1)
+nobs2 = len(cat2)
 
-scaler = MinMaxScaler()
-feat_scaled = scaler.fit_transform(X=features, y=data_input[output])
-# print(feat_scaled)
-reg = LinearRegression().fit(X=feat_scaled, y=data_input[output])
-print(output, reg.score(X=feat_scaled, y=data_input[output]))
-print(output, reg.coef_)
+print(nobs1, nobs2)
+
+for col in df.columns:
+       if len(df[col].unique()) > 2:
+              t_stat, p = ss.ttest_ind(cat1[col], cat2[col])
+              if p < 0.05:
+                     print('Numerical:', col, ', p value is', p, '******')
+       elif len(df[col].unique()) == 2:
+              count1 = len(cat1[cat1[col] == 1])
+              count2 = len(cat2[cat2[col] == 1])
+              z_stat, p = proportions_ztest([count1, count2], [nobs1, nobs2])
+              if p < 0.05:
+                     print('Binary:', col, ', p value is', p, '******')
+              # else:
+              #        print('Binary:', col, ', p value is', p)
