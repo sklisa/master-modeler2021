@@ -12,6 +12,7 @@ dir = os.getcwd()
 data_input = pd.read_csv('dataset0315.csv')
 out_data_dir = dir+'/PrepData0316/'
 in_files = glob.glob(dir+'/PrepData0315/'+'*.json')
+in_files_2 = glob.glob(dir+'/PrepData0316/'+'*.json')
 unavailable_json = []
 
 
@@ -124,7 +125,7 @@ def label(quantile1, quantile2):
 
 def weighted_label(quantile1):
     list_of_dct = []
-    for file in in_files:
+    for file in in_files_2:
         with open(file, 'r') as f:
             filename = os.path.basename(file)
             try:
