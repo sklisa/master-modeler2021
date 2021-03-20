@@ -16,11 +16,11 @@ unavailable_json = []
 
 
 # Examine engagement quantile
-def quantile(variable):
+def quantile(df, variable):
     # plt.boxplot(data_input[variable])
-    outlier = data_input[variable].loc[np.abs(stats.zscore(data_input[variable])) >= 3]
+    outlier = df[variable].loc[np.abs(stats.zscore(df[variable])) >= 3]
     print(variable, len(outlier), 'outlier removed: \n', outlier)
-    outlier_rm = data_input[np.abs(stats.zscore(data_input[variable])) < 3]
+    outlier_rm = df[np.abs(stats.zscore(df[variable])) < 3]
     quantile = outlier_rm[variable].quantile([.1, .25, .5, .75, .9])
     print('Quantile after outlier removed: \n', quantile)
     return quantile
@@ -122,15 +122,55 @@ def label(quantile1, quantile2):
     return list_of_dct
 
 
-def main():
-    quantile1 = quantile('engagement_rate')
-    quantile2 = quantile('total_engagement')
-    list_of_dct = label(quantile1, quantile2)
+def weighted_label(quantile1):
+    list_of_dct = []
+    for file in in_files:
+        with open(file, 'r') as f:
+            filename = os.path.basename(file)
+            try:
+                dct = json.load(f)
+                new_dct = dct
 
+                # label outcome var
+                if new_dct['weighted_engagement'] <= quantile1.iloc[1]:
+                    new_dct['weighted_engagement_label'] = 0
+                elif quantile1.iloc[1] < new_dct['engagement_rate'] <= quantile1.iloc[3]:
+                    new_dct['weighted_engagement_label'] = 1
+                else:
+                    new_dct['weighted_engagement_label'] = 2
+
+                if new_dct['weighted_engagement'] <= quantile1.iloc[0]:
+                    new_dct['weighted_engagement_label2'] = 0
+                elif quantile1.iloc[0] < new_dct['engagement_rate'] <= quantile1.iloc[4]:
+                    new_dct['weighted_engagement_label2'] = 1
+                else:
+                    new_dct['weighted_engagement_label2'] = 2
+
+                if new_dct['weighted_engagement'] <= quantile1.iloc[2]:
+                    new_dct['weighted_engagement_label3'] = 0
+                else:
+                    new_dct['weighted_engagement_label3'] = 1
+
+                out_file = open(out_data_dir + filename, 'w')
+                json.dump(new_dct, out_file)
+                list_of_dct.append(new_dct)
+
+            except JSONDecodeError:
+                unavailable_json.append(filename)
+
+    print(len(list_of_dct))
+    return list_of_dct
+
+
+def main():
+    quantile1 = quantile(data_input, 'engagement_rate')
+    quantile2 = quantile(data_input, 'total_engagement')
+    list_of_dct = label(quantile1, quantile2)
     df = pd.DataFrame(list_of_dct)
 
-    # add
-
+    quantile3 = quantile(df, 'weighted_engagement')
+    list_of_dct = weighted_label(quantile3)
+    df = pd.DataFrame(list_of_dct)
 
     df.to_csv('dataset0316.csv', index=False)  # sep='\t'
 
