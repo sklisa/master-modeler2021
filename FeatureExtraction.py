@@ -59,10 +59,11 @@ def load_dct():
                 new_dct['missing'] = int(dct['missing'])
                 new_dct['asterisk'] = int(dct['asterisk'])
                 new_dct['federal'] = int(dct['federal'])
-                new_dct['engagement_rate_label'] = int(dct['engagement_rate_label'])
-                new_dct['total_engagement_label'] = int(dct['total_engagement_label'])
-                # new_dct['engagement_rate_label2'] = int(dct['engagement_rate_label2'])
-                # new_dct['total_engagement_label2'] = int(dct['total_engagement_label2'])
+                new_dct['special_day'] = int(dct['special_day'])
+                new_dct['engagement_rate_label3'] = int(dct['engagement_rate_label3'])
+                # new_dct['total_engagement_label'] = int(dct['total_engagement_label'])
+                new_dct['total_engagement_label3'] = int(dct['total_engagement_label3'])
+                new_dct['weighted_engagement_label3'] = int(dct['weighted_engagement_label3'])
                 # new_dct['total_engagement'] = int(dct['total_engagement'])
                 # new_dct['engagement_rate'] = int(dct['engagement_rate'])
                 # new_dct['weighted_engagement'] = int(dct['weighted_engagement'])        
@@ -164,7 +165,7 @@ def seperate_label(df, mode):
     # df.drop(['message', 'cleaned_message', 'message_tags'], axis=1, inplace=True)
     df.drop(['key'], axis=1, inplace=True)
     y = df[mode]
-    df.drop(['engagement_rate_label', 'total_engagement_label'], axis=1, inplace=True)
+    df.drop(['engagement_rate_label3', 'total_engagement_label3', 'weighted_engagement_label3'], axis=1, inplace=True)
     return df, y
 
 def dim_reduction(X):
@@ -197,9 +198,9 @@ def dim_reduction(X):
 
 if __name__ == '__main__':
     df, message_dct = load_dct()
-    # df.to_csv('dataset_0320.csv', index=False)
+    df.to_csv('dataset_0320.csv', index=False)
     # cleaned_texts = to_list(message_dct, 'cleaned_message')
-    df_events, raw_texts = to_list(message_dct, 'message')
+    # df_events, raw_texts = to_list(message_dct, 'message')
     # text -> normalized bag-of-words post
     # df_bow = normalized_BoW(cleaned_texts, 500)
     # text -> bert sentence embedding
@@ -209,27 +210,27 @@ if __name__ == '__main__':
     # df_sentiment_score = var_sentiment_score(raw_texts)
     
     # load other sentiment analysis
-    df_sentiment_analysis = load_sentiment()
+    # df_sentiment_analysis = load_sentiment()
     
     # categorize the hashtags
     # hashtags = to_list(message_dct, 'message_tags')
     # df_bow_hashtags = normalized_BoW(hashtags, 50)
     
     # calculate length of post
-    df_lop = length_of_post(raw_texts)
-    df = df.join(df_sentiment_analysis.set_index('key'), on='key')
-    # df = pd.concat([df, df_bow, df_bow_hashtags], axis=1)
-    df = df.join(df_lop.set_index('key'))
-    df = df.join(df_events.set_index('key'))
-    df = df.fillna(0)
-    df.drop(columns=['key'], axis=1)
-    # df = df.astype('float')
-    # df = pd.concat([df, df_bert, df_sentiment_score, df_bow_hashtags, df_lop], axis=1)
-    X, y = seperate_label(df, 'total_engagement_label')
-    scaled_X = pd.DataFrame(StandardScaler().fit_transform(X),columns=X.columns) 
-    dataset = pd.concat([pd.DataFrame(scaled_X), y], axis=1)
-    # PCA_X = dim_reduction(X)
-    # PCA_dataset = pd.concat([pd.DataFrame(PCA_X), y], axis=1)
-    train, test = train_test_split(dataset, test_size=0.3, shuffle=True, random_state=123)
-    train.to_csv('train_new.csv', index=False)
-    test.to_csv('test_new.csv', index=False)
+    # df_lop = length_of_post(raw_texts)
+    # df = df.join(df_sentiment_analysis.set_index('key'), on='key')
+    # # df = pd.concat([df, df_bow, df_bow_hashtags], axis=1)
+    # df = df.join(df_lop.set_index('key'))
+    # df = df.join(df_events.set_index('key'))
+    # df = df.fillna(0)
+    # df.drop(columns=['key'], axis=1)
+    # # df = df.astype('float')
+    # # df = pd.concat([df, df_bert, df_sentiment_score, df_bow_hashtags, df_lop], axis=1)
+    # X, y = seperate_label(df, 'total_engagement_label3')
+    # scaled_X = pd.DataFrame(StandardScaler().fit_transform(X),columns=X.columns) 
+    # dataset = pd.concat([pd.DataFrame(scaled_X), y], axis=1)
+    # # PCA_X = dim_reduction(X)
+    # # PCA_dataset = pd.concat([pd.DataFrame(PCA_X), y], axis=1)
+    # train, test = train_test_split(dataset, test_size=0.3, shuffle=True, random_state=123)
+    # train.to_csv('train_new.csv', index=False)
+    # test.to_csv('test_new.csv', index=False)
