@@ -12,12 +12,12 @@ from sklearn.dummy import DummyClassifier
 from sklearn.naive_bayes import GaussianNB
 from sklearn import metrics
 
-train = pd.read_csv('train_bert_PCA_text.csv')
-test = pd.read_csv('test_bert_PCA_text.csv')
+train = pd.read_csv('train_bert_PCA.csv')
+test = pd.read_csv('test_bert_PCA.csv')
 print('columns:')
 print(test.columns)
 
-output_label='engagement_rate'
+output_label='engagement_rate_label2'
 
 yTrain = train[output_label].to_numpy()
 xTrain = train.drop([output_label], axis=1)
@@ -44,6 +44,7 @@ def model(mode):
         clf = GaussianNB()
     clf.fit(xTrain, yTrain)
     predictions = clf.predict(xTest)
+    print(predictions)
     if mode == 'rf_reg':
         explained_variance = metrics.explained_variance_score(yTest, predictions)
         mse = metrics.mean_squared_error(yTest, predictions)
@@ -74,5 +75,5 @@ def param_tuning(mode):
     print('best_score', clf.best_score_)
     
 if __name__ == '__main__':
-    model('rf_reg')
+    model('rf_class')
     # param_tuning('knn')

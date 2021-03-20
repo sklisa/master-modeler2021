@@ -197,7 +197,7 @@ if __name__ == '__main__':
     df_lop = length_of_post(raw_texts)
 
     df = pd.concat([df, df_bert, df_sentiment_score, df_bow_hashtags, df_lop], axis=1)
-    X, y = seperate_label(df, 'engagement_rate')
+    X, y = seperate_label(df, 'engagement_rate_label2')
     rescaled_X = scale(X)
     # dataset = pd.concat([pd.DataFrame(rescaled_X), y], axis=1)
     PCA_X = dim_reduction(rescaled_X)
