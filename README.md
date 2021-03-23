@@ -12,8 +12,15 @@ FILES:
 DataCollection1-2.py - GraphAPI
 	create RawData - raw JSON files with index matching the excel order, including error100 as empty JSON files
 
+
 DataCleaning.py - created_times, clean text and attachments
 	create FilteredData, dataset.csv from RawData
+
+
+TextPreprocessor.py
+
+
+TextAnalysis.py
 
 
 unavailable_urls.txt - url not working (error100, including deleted, not including repost)
