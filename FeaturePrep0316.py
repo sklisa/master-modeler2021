@@ -18,7 +18,12 @@ unavailable_json = []
 
 # Examine engagement quantile
 def quantile(df, variable):
-    # plt.boxplot(data_input[variable])
+    plt.boxplot(df[variable])
+    # quartile_1, quartile_3 = np.percentile(df[variable], [25, 75])
+    # iqr = quartile_3 - quartile_1
+    # lower_bound = quartile_1 - (iqr * 1.5)
+    # upper_bound = quartile_3 + (iqr * 1.5)
+    # outlier = df.loc[(df[variable] > upper_bound) | (df[variable] < lower_bound)]
     outlier = df[variable].loc[np.abs(stats.zscore(df[variable])) >= 3]
     print(variable, len(outlier), 'outlier removed: \n', outlier)
     outlier_rm = df[np.abs(stats.zscore(df[variable])) < 3]
