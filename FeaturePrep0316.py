@@ -31,11 +31,12 @@ def label(quantile1, quantile2):
     list_of_dct = []
     for file in in_files:
         with open(file, 'r') as f:
+            file_key = int(os.path.basename(file)[:-5])
             filename = os.path.basename(file)
             try:
                 dct = json.load(f)
                 new_dct = dct
-
+                new_dct['key'] = file_key
                 # label outcome var
                 if new_dct['engagement_rate'] <= quantile1.iloc[1]:
                     new_dct['engagement_rate_label'] = 0
@@ -74,6 +75,7 @@ def label(quantile1, quantile2):
                     new_dct['total_engagement_label3'] = 0
                 else:
                     new_dct['total_engagement_label3'] = 1
+
 
                 # weighted total engagement
                 new_dct['weighted_engagement'] = new_dct['shares'] + .75 * new_dct['comments'] + 0.5 * new_dct['reactions']
@@ -128,8 +130,11 @@ def label(quantile1, quantile2):
     return list_of_dct
 
 
-def weighted_label(quantile1):
+def additional_label(quantile1, variable):
     list_of_dct = []
+    # label = variable+'_label'
+    # label2 = variable+'_label2'
+    label3 = variable+'_label3'
     for file in in_files_2:
         with open(file, 'r') as f:
             filename = os.path.basename(file)
@@ -138,24 +143,24 @@ def weighted_label(quantile1):
                 new_dct = dct
 
                 # label outcome var
-                if new_dct['weighted_engagement'] <= quantile1.iloc[1]:
-                    new_dct['weighted_engagement_label'] = 0
-                elif quantile1.iloc[1] < new_dct['engagement_rate'] <= quantile1.iloc[3]:
-                    new_dct['weighted_engagement_label'] = 1
-                else:
-                    new_dct['weighted_engagement_label'] = 2
+                # if new_dct[variable] <= quantile1.iloc[1]:
+                #     new_dct[label] = 0
+                # elif quantile1.iloc[1] < new_dct[variable] <= quantile1.iloc[3]:
+                #     new_dct[label] = 1
+                # else:
+                #     new_dct[label] = 2
+                #
+                # if new_dct[variable] <= quantile1.iloc[0]:
+                #     new_dct[label2] = 0
+                # elif quantile1.iloc[0] < new_dct[variable] <= quantile1.iloc[4]:
+                #     new_dct[label2] = 1
+                # else:
+                #     new_dct[label2] = 2
 
-                if new_dct['weighted_engagement'] <= quantile1.iloc[0]:
-                    new_dct['weighted_engagement_label2'] = 0
-                elif quantile1.iloc[0] < new_dct['engagement_rate'] <= quantile1.iloc[4]:
-                    new_dct['weighted_engagement_label2'] = 1
+                if new_dct[variable] <= quantile1.iloc[2]:
+                    new_dct[label3] = 0
                 else:
-                    new_dct['weighted_engagement_label2'] = 2
-
-                if new_dct['weighted_engagement'] <= quantile1.iloc[2]:
-                    new_dct['weighted_engagement_label3'] = 0
-                else:
-                    new_dct['weighted_engagement_label3'] = 1
+                    new_dct[label3] = 1
 
                 out_file = open(out_data_dir + filename, 'w')
                 json.dump(new_dct, out_file)
@@ -175,7 +180,11 @@ def main():
     df = pd.DataFrame(list_of_dct)
 
     quantile3 = quantile(df, 'weighted_engagement')
-    list_of_dct = weighted_label(quantile3)
+    list_of_dct = additional_label(quantile3, 'weighted_engagement')
+
+    quantile4 = quantile(df, 'shares')
+    list_of_dct = additional_label(quantile4, 'shares')
+
     df = pd.DataFrame(list_of_dct)
 
     df.to_csv('dataset0316.csv', index=False)  # sep='\t'

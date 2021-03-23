@@ -7,7 +7,7 @@ from scipy import stats
 import json
 from json.decoder import JSONDecodeError
 import glob
-from sklearn.linear_model import LinearRegression
+from sklearn.linear_model import LinearRegression, Lasso, LassoCV
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.preprocessing import StandardScaler
 import scipy.stats as ss
@@ -16,8 +16,8 @@ from statsmodels.stats.proportion import proportions_ztest
 
 dir = os.getcwd()
 out_dir = dir + '/PrelimAnalysisChart/'
-data_input = pd.read_csv('dataset_0320.csv')
-
+data_input = pd.read_csv('dataset0316.csv')
+data_input2 = pd.read_csv('dataset_0320.csv')
 
 # data_input['date'] = pd.to_datetime(data_input['date'], format="%Y-%m-%d")
 
@@ -162,58 +162,75 @@ data_input = pd.read_csv('dataset_0320.csv')
 
 
 # Regression
-# print(data_input.columns)
-# features = data_input[['Mon', 'Tue', 'Wed', 'Thur',
-#        'Fri', 'Sat', 'winter', 'spring', 'summer',
-#        'morning', 'afternoon', 'evening', 'emoji_num',
-#        'mention_num', 'name_num', 'share', 'photo',
-#        'video', 'link','face_present', 'face_vague',
-#        'recovered', 'missing', 'asterisk','special_day']]
-#
-# # 'total_engagement', 'engagement_rate','reactions',
-# # 'shares', 'comments','engagement_rate_label', 'total_engagement_label',
-# # 'engagement_rate_label2', 'total_engagement_label2', 'weighted_engagement'
-#
-# # train_bert = pd.read_csv('train_bert_PCA.csv')
-# # features = train_bert[[train_bert.columns != '']]
-#
-# output = 'reactions'
-#
-# scaler = MinMaxScaler()
-# feat_scaled = scaler.fit_transform(X=features, y=data_input[output])
-# # print(feat_scaled)
-# reg = LinearRegression().fit(X=feat_scaled, y=data_input[output])
-# print(output, reg.score(X=feat_scaled, y=data_input[output]))
-# print(output, reg.coef_)
-
-
-# Statistical test
 pd.set_option('display.max_columns', None)
 df = pd.read_csv('SentimentAnalysis.csv')
 df['key'] = df.apply(lambda row: int(row['filename'][:-4]), axis=1)
 df.drop(columns=['filename'], axis=1, inplace=True)
-df = df.join(data_input.set_index('key'), on='key')
+df_joined = df.join(data_input.set_index('key'), on='key')
+
+rm = ['reactions', 'shares', 'comments',
+          'total_engagement', 'engagement_rate', 'weighted_engagement',
+          'total_engagement_label', 'engagement_rate_label',
+          'total_engagement_label2', 'engagement_rate_label2',
+          'total_engagement_label3', 'engagement_rate_label3',
+          'weighted_engagement_label3', 'shares_label3',
+      'url', 'created_time', 'message', 'cleaned_message', 'emojis',
+      'mentions', 'names', 'message_tags', 'attachments', 'urls',
+      'original_date', 'date', 'day_week', 'season', 'hour', 'time_day',
+      'share_url', 'photo_url', 'video_url', 'media_desc', 'thumbnail_url']
+cols = [col for col in df_joined.columns if col not in rm]
+features = df_joined[cols]
+print(features.columns)
+output = 'shares'
+
+scaler = MinMaxScaler()
+feat_scaled = scaler.fit_transform(X=features, y=df_joined[output])
+# reg = LinearRegression().fit(X=feat_scaled, y=data_input[output])
+# print(output, reg.score(X=feat_scaled, y=data_input[output]))
+# print(output, reg.coef_)
+
+lasso = Lasso(alpha=0.5)
+lasso.fit(feat_scaled, df_joined[output])
+# lasso = LassoCV(cv=2, n_alphas=100, random_state=0).fit(feat_scaled, df_joined[output])
+# alphas=[0.01, 0.05, 0.1, 0.5]
+print(lasso.score(X=feat_scaled, y=df_joined[output]))
+print('coef', lasso.coef_)
+
+# Statistical test
+# df_joined = df.join(data_input2.set_index('key'), on='key')
 
 # x="weighted_engagement_label3", y="positive_adjectives_component"
-output_var = 'weighted_engagement_label3'
-print(df[output_var].unique())
-cat1 = df[df[output_var] == 0]
-cat2 = df[df[output_var] == 1]
-nobs1 = len(cat1)
-nobs2 = len(cat2)
-
-print(nobs1, nobs2)
-
-for col in df.columns:
-       if len(df[col].unique()) > 2:
-              t_stat, p = ss.ttest_ind(cat1[col], cat2[col])
-              if p < 0.05:
-                     print('Numerical:', col, ', p value is', p, '******')
-       elif len(df[col].unique()) == 2:
-              count1 = len(cat1[cat1[col] == 1])
-              count2 = len(cat2[cat2[col] == 1])
-              z_stat, p = proportions_ztest([count1, count2], [nobs1, nobs2])
-              if p < 0.05:
-                     print('Binary:', col, ', p value is', p, '******')
+# output_var = 'weighted_engagement_label3'
+# print(df_joined[output_var].unique())
+# cat1 = df_joined[df_joined[output_var] == 0]
+# cat2 = df_joined[df_joined[output_var] == 1]
+# nobs1 = len(cat1)
+# nobs2 = len(cat2)
+#
+# print(nobs1, nobs2)
+#
+# for col in df_joined.columns:
+#        if len(df_joined[col].unique()) > 2:
+#               t_stat, p = ss.ttest_ind(cat1[col], cat2[col])
+#               if p < 0.05:
+#                      print('Numerical:', col, ', p value is', p, '******')
+#        elif len(df_joined[col].unique()) == 2:
+#               count1 = len(cat1[cat1[col] == 1])
+#               count2 = len(cat2[cat2[col] == 1])
+#               z_stat, p = proportions_ztest([count1, count2], [nobs1, nobs2])
+#               if p < 0.05:
+#                      print('Binary:', col, ', p value is', p, '******')
               # else:
               #        print('Binary:', col, ', p value is', p)
+
+
+
+
+
+
+
+# Case study
+# print(len(data_input[data_input['face_present']==1])/len(data_input))
+# print(len(data_input[data_input['share']==1])/len(data_input))
+# print(len(data_input[data_input['missing']==1])/len(data_input))
+# print(len(data_input[(data_input['missing']==1) | (data_input['recovered']==1)])/len(data_input))

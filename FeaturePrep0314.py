@@ -32,7 +32,7 @@ unavailable_json = []
 # Load the cascade
 face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
 
-print()
+
 
 def detect_print(image_url, filename, out_dir):
     print(image_url)

@@ -30,7 +30,7 @@ def load_dct():
             file_key = int(os.path.basename(file)[:-5])
             dct = json.load(f)
             try:
-                new_dct['key'] = file_key
+                # new_dct['key'] = file_key
                 # new_dct['message'] = dct['message']
                 # new_dct['cleaned_message'] = dct['cleaned_message']
                 # new_dct['message_tags'] = dct['message_tags']
@@ -40,8 +40,8 @@ def load_dct():
                 new_dct['Thur'] = int(dct['Thur'])
                 new_dct['Fri'] = int(dct['Fri'])
                 new_dct['Sat'] = int(dct['Sat'])
-                # new_dct['event'] = dct['event']
                 new_dct['winter'] = int(dct['winter'])
+                new_dct['spring'] = int(dct['spring'])
                 new_dct['summer'] = int(dct['summer'])
                 new_dct['morning'] = int(dct['morning'])
                 new_dct['afternoon'] = int(dct['afternoon'])
@@ -65,9 +65,11 @@ def load_dct():
                 # new_dct['total_engagement_label'] = int(dct['total_engagement_label'])
                 new_dct['total_engagement_label3'] = int(dct['total_engagement_label3'])
                 new_dct['weighted_engagement_label3'] = int(dct['weighted_engagement_label3'])
+                new_dct['shares_label3'] = int(dct['shares_label3'])
+
                 # new_dct['total_engagement'] = int(dct['total_engagement'])
                 # new_dct['engagement_rate'] = int(dct['engagement_rate'])
-                # new_dct['weighted_engagement'] = int(dct['weighted_engagement'])        
+                # new_dct['weighted_engagement'] = int(dct['weighted_engagement'])
                 dct_list.append(new_dct)
                 message_dct[file_key] = (dct['message'], dct['cleaned_message'], dct['message_tags'])
             except KeyError as e:
@@ -166,7 +168,7 @@ def seperate_label(df, mode):
     # df.drop(['message', 'cleaned_message', 'message_tags'], axis=1, inplace=True)
     df.drop(['key'], axis=1, inplace=True)
     y = df[mode]
-    df.drop(['engagement_rate_label3', 'total_engagement_label3', 'weighted_engagement_label3'], axis=1, inplace=True)
+    df.drop(['engagement_rate_label3', 'total_engagement_label3', 'weighted_engagement_label3', 'shares_label3'], axis=1, inplace=True)
     return df, y
 
 def dim_reduction(X):
