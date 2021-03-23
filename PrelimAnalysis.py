@@ -143,58 +143,80 @@ data_input2 = pd.read_csv('dataset_0320.csv')
 
 
 # Find outlier
-# print('Outlier by engagement_rate')
+print('Outlier by engagement_rate')
 # outlier1 = data_input.loc[np.abs(stats.zscore(data_input['engagement_rate'])) >= 3]
-# print(outlier1)
-# print('Outlier by total_engagement')
+quartile_1, quartile_3 = np.percentile(data_input['engagement_rate'], [25, 75])
+iqr = quartile_3 - quartile_1
+lower_bound = quartile_1 - (iqr * 1.5)
+upper_bound = quartile_3 + (iqr * 1.5)
+outlier1 = data_input.loc[(data_input['engagement_rate'] > upper_bound) | (data_input['engagement_rate'] < lower_bound)]
+print(outlier1)
+print('Outlier by total_engagement')
 # outlier2 = data_input.loc[np.abs(stats.zscore(data_input['total_engagement'])) >= 3]
-# print(outlier2)
-# merge1 = pd.merge(outlier1, outlier2, how='outer', on='url')
+quartile_1, quartile_3 = np.percentile(data_input['total_engagement'], [25, 75])
+iqr = quartile_3 - quartile_1
+lower_bound = quartile_1 - (iqr * 1.5)
+upper_bound = quartile_3 + (iqr * 1.5)
+outlier2 = data_input.loc[(data_input['total_engagement'] > upper_bound) | (data_input['total_engagement'] < lower_bound)]
+print(outlier2)
+# merge1 = pd.merge(outlier1, outlier2['url'], how='outer', on='url')
 # print('Union of outliers', len(merge1))
 # print(merge1)
-# merge2 = pd.merge(outlier1, outlier2, how='inner', on='url')
-# print('Intersection of outliers', len(merge2))
-# print(merge2)
-#
-# merge1.to_csv('union_outliers.csv')
-# merge2.to_csv('inters_outliers.csv')
+merge2 = pd.merge(outlier1, outlier2['url'], how='inner', on='url')
+print('Intersection of outliers', len(merge2))
+print(merge2)
+merge2 = merge2.sort_values(by=['total_engagement', 'engagement_rate'], ascending=False)
+# merge1.to_csv('union_outliers2.csv')
+# merge2.to_csv('inters_outliers2.csv')
+
+
+# Outlier stats
+print('face_present', len(merge2[merge2['face_present']==1])/len(merge2))
+print('total face_present', len(data_input[data_input['face_present']==1])/len(data_input))
+
+print('missing', len(merge2[merge2['missing']==1])/len(merge2))
+print('total missing', len(data_input[data_input['missing']==1])/len(data_input))
+
+print('missing+recovered', len(merge2[(merge2['missing']==1) | (merge2['recovered']==1)])/len(merge2))
+print('total missing+recovered', len(data_input[(data_input['missing']==1) | (data_input['recovered']==1)])/len(data_input))
+
 
 
 
 # Regression
-pd.set_option('display.max_columns', None)
-df = pd.read_csv('SentimentAnalysis.csv')
-df['key'] = df.apply(lambda row: int(row['filename'][:-4]), axis=1)
-df.drop(columns=['filename'], axis=1, inplace=True)
-df_joined = df.join(data_input.set_index('key'), on='key')
-
-rm = ['reactions', 'shares', 'comments',
-          'total_engagement', 'engagement_rate', 'weighted_engagement',
-          'total_engagement_label', 'engagement_rate_label',
-          'total_engagement_label2', 'engagement_rate_label2',
-          'total_engagement_label3', 'engagement_rate_label3',
-          'weighted_engagement_label3', 'shares_label3',
-      'url', 'created_time', 'message', 'cleaned_message', 'emojis',
-      'mentions', 'names', 'message_tags', 'attachments', 'urls',
-      'original_date', 'date', 'day_week', 'season', 'hour', 'time_day',
-      'share_url', 'photo_url', 'video_url', 'media_desc', 'thumbnail_url']
-cols = [col for col in df_joined.columns if col not in rm]
-features = df_joined[cols]
-print(features.columns)
-output = 'shares'
-
-scaler = MinMaxScaler()
-feat_scaled = scaler.fit_transform(X=features, y=df_joined[output])
-# reg = LinearRegression().fit(X=feat_scaled, y=data_input[output])
-# print(output, reg.score(X=feat_scaled, y=data_input[output]))
-# print(output, reg.coef_)
-
-lasso = Lasso(alpha=0.5)
-lasso.fit(feat_scaled, df_joined[output])
-# lasso = LassoCV(cv=2, n_alphas=100, random_state=0).fit(feat_scaled, df_joined[output])
-# alphas=[0.01, 0.05, 0.1, 0.5]
-print(lasso.score(X=feat_scaled, y=df_joined[output]))
-print('coef', lasso.coef_)
+# pd.set_option('display.max_columns', None)
+# df = pd.read_csv('SentimentAnalysis.csv')
+# df['key'] = df.apply(lambda row: int(row['filename'][:-4]), axis=1)
+# df.drop(columns=['filename'], axis=1, inplace=True)
+# df_joined = df.join(data_input.set_index('key'), on='key')
+#
+# rm = ['reactions', 'shares', 'comments',
+#           'total_engagement', 'engagement_rate', 'weighted_engagement',
+#           'total_engagement_label', 'engagement_rate_label',
+#           'total_engagement_label2', 'engagement_rate_label2',
+#           'total_engagement_label3', 'engagement_rate_label3',
+#           'weighted_engagement_label3', 'shares_label3',
+#       'url', 'created_time', 'message', 'cleaned_message', 'emojis',
+#       'mentions', 'names', 'message_tags', 'attachments', 'urls',
+#       'original_date', 'date', 'day_week', 'season', 'hour', 'time_day',
+#       'share_url', 'photo_url', 'video_url', 'media_desc', 'thumbnail_url']
+# cols = [col for col in df_joined.columns if col not in rm]
+# features = df_joined[cols]
+# print(features.columns)
+# output = 'shares'
+#
+# scaler = MinMaxScaler()
+# feat_scaled = scaler.fit_transform(X=features, y=df_joined[output])
+# # reg = LinearRegression().fit(X=feat_scaled, y=data_input[output])
+# # print(output, reg.score(X=feat_scaled, y=data_input[output]))
+# # print(output, reg.coef_)
+#
+# lasso = Lasso(alpha=0.5)
+# lasso.fit(feat_scaled, df_joined[output])
+# # lasso = LassoCV(cv=2, n_alphas=100, random_state=0).fit(feat_scaled, df_joined[output])
+# # alphas=[0.01, 0.05, 0.1, 0.5]
+# print(lasso.score(X=feat_scaled, y=df_joined[output]))
+# print('coef', lasso.coef_)
 
 # Statistical test
 # df_joined = df.join(data_input2.set_index('key'), on='key')

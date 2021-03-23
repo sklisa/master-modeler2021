@@ -28,3 +28,11 @@ Photo (face present), tags
 
 
 
+face_present 0.5375722543352601
+total face_present 0.387482083134257
+missing 0.10404624277456648
+total missing 0.03965599617773531
+missing+recovered 0.13872832369942195
+total missing+recovered 0.05112279025322503
+
+
