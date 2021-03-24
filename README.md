@@ -10,6 +10,7 @@ This project is for Master Modeler Competition 2021, aiming to help ERASE Child 
 
 FILES:
 
+
 DataCollection1-2.py - GraphAPI
 	create RawData - raw JSON files with index matching the excel order, including error100 as empty JSON files
 
@@ -87,6 +88,9 @@ PrelimAnalysis - Create charts in PrelimAnalysisChart & StatsChart, detect outli
 
 
 Modelling.py - Build models
+
+
+Feature Documentation.py - all features used explained
 
 
 
