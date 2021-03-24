@@ -30,46 +30,45 @@ def load_dct():
             file_key = int(os.path.basename(file)[:-5])
             dct = json.load(f)
             try:
-                # new_dct['key'] = file_key
+                new_dct['key'] = file_key
                 # new_dct['message'] = dct['message']
                 # new_dct['cleaned_message'] = dct['cleaned_message']
                 # new_dct['message_tags'] = dct['message_tags']
-                new_dct['Mon'] = int(dct['Mon'])
-                new_dct['Tue'] = int(dct['Tue'])
-                new_dct['Wed'] = int(dct['Wed'])
-                new_dct['Thur'] = int(dct['Thur'])
-                new_dct['Fri'] = int(dct['Fri'])
-                new_dct['Sat'] = int(dct['Sat'])
-                new_dct['winter'] = int(dct['winter'])
-                new_dct['spring'] = int(dct['spring'])
-                new_dct['summer'] = int(dct['summer'])
-                new_dct['morning'] = int(dct['morning'])
-                new_dct['afternoon'] = int(dct['afternoon'])
+                # new_dct['Mon'] = int(dct['Mon'])
+                # new_dct['Tue'] = int(dct['Tue'])
+                # new_dct['Wed'] = int(dct['Wed'])
+                # new_dct['Thur'] = int(dct['Thur'])
+                # new_dct['Fri'] = int(dct['Fri'])
+                # new_dct['Sat'] = int(dct['Sat'])
+                # new_dct['event'] = dct['event']
+                # new_dct['winter'] = int(dct['winter'])
+                # new_dct['summer'] = int(dct['summer'])
+                # new_dct['morning'] = int(dct['morning'])
+                # new_dct['afternoon'] = int(dct['afternoon'])
                 new_dct['evening'] = int(dct['evening'])
+                new_dct['hashtag_num'] = int(dct['hashtag_num'])
                 new_dct['emoji_num'] = int(dct['emoji_num'])
                 new_dct['mention_num'] = int(dct['mention_num'])
-                new_dct['name_num'] = int(dct['name_num'])
-                new_dct['hashtag_num'] = int(dct['hashtag_num'])
+                # new_dct['name_num'] = int(dct['name_num'])
                 new_dct['share'] = int(dct['share'])
                 new_dct['photo'] = int(dct['photo'])
                 new_dct['video'] = int(dct['video'])
                 new_dct['link'] = int(dct['link'])
                 new_dct['face_present'] = int(dct['face_present'])
-                new_dct['face_vague'] = int(dct['face_vague'])
+                # new_dct['face_vague'] = int(dct['face_vague'])
                 new_dct['recovered'] = int(dct['recovered'])
-                new_dct['missing'] = int(dct['missing'])
-                new_dct['asterisk'] = int(dct['asterisk'])
-                new_dct['federal'] = int(dct['federal'])
+                # new_dct['missing'] = int(dct['missing'])
+                # new_dct['asterisk'] = int(dct['asterisk'])
+                # new_dct['federal'] = int(dct['federal'])
                 new_dct['special_day'] = int(dct['special_day'])
                 new_dct['engagement_rate_label3'] = int(dct['engagement_rate_label3'])
                 # new_dct['total_engagement_label'] = int(dct['total_engagement_label'])
                 new_dct['total_engagement_label3'] = int(dct['total_engagement_label3'])
                 new_dct['weighted_engagement_label3'] = int(dct['weighted_engagement_label3'])
                 new_dct['shares_label3'] = int(dct['shares_label3'])
-
                 # new_dct['total_engagement'] = int(dct['total_engagement'])
                 # new_dct['engagement_rate'] = int(dct['engagement_rate'])
-                # new_dct['weighted_engagement'] = int(dct['weighted_engagement'])
+                # new_dct['weighted_engagement'] = int(dct['weighted_engagement'])        
                 dct_list.append(new_dct)
                 message_dct[file_key] = (dct['message'], dct['cleaned_message'], dct['message_tags'])
             except KeyError as e:
@@ -80,12 +79,12 @@ def load_dct():
     return df, message_dct
 
 def load_sentiment():
-    df = pd.read_csv('SentimentAnalysis.csv', 
-                     usecols=['filename', 'negative_adjectives_component', 'social_order_component', 'action_component', 
-                                                       'positive_adjectives_component', 'joy_component', 'affect_friends_and_family_component', 
-                                                       'fear_and_digust_component', 'politeness_component', 'polarity_nouns_component',
-                                                       'polarity_verbs_component', 'positive_nouns_component', 'respect_component', 'trust_verbs_component',
-                                                       'well_being_component', 'economy_component', 'certainty_component', 'positive_verbs_component', 'objects_component'])
+    df = pd.read_csv('SentimentAnalysis.csv',usecols=['filename', 'nwords', 'Negativ_GI', 'Hostile_GI', 'Power_GI', 'Weak_GI', 'Submit_GI', 'Passive_GI', 'Pain_GI', 'Vice_GI',
+                                                      'Ovrst_GI', 'Doctrin_GI', 'Legal_GI', 'Role_GI', 'Male_GI', 'Nonadlt_GI', 'Hu_GI', 'Region_GI', 'Comform_GI', 'Com_GI', 
+                                                      'Natrpro_GI', 'Stay_GI', 'Exert_GI', 'Travel_GI', 'Quan_GI', 'Numb_GI', 'Card_GI', 'Space_GI', 'Dim_GI', 'Our_GI', 'Sv_GI',
+                                                      'Ipadj_GI', 'negative_adjectives_component', 'social_order_component', 'action_component', 
+                                                        'positive_adjectives_component', 'affect_friends_and_family_component', 
+                                                        'fear_and_digust_component', 'politeness_component', 'well_being_component','certainty_component'])
     df['key'] = df.apply(lambda row: int(row['filename'][:-4]), axis=1)
     df.drop(columns=['filename'], axis=1, inplace=True)
     df.fillna(0, inplace=True)
@@ -201,10 +200,9 @@ def dim_reduction(X):
 
 if __name__ == '__main__':
     df, message_dct = load_dct()
-
-    df.to_csv('dataset_0320.csv', index=False)
+    # df.to_csv('dataset_0320.csv', index=False)
     # cleaned_texts = to_list(message_dct, 'cleaned_message')
-    # df_events, raw_texts = to_list(message_dct, 'message')
+    df_events, raw_texts = to_list(message_dct, 'message')
     # text -> normalized bag-of-words post
     # df_bow = normalized_BoW(cleaned_texts, 500)
     # text -> bert sentence embedding
@@ -214,7 +212,7 @@ if __name__ == '__main__':
     # df_sentiment_score = var_sentiment_score(raw_texts)
     
     # load other sentiment analysis
-    # df_sentiment_analysis = load_sentiment()
+    df_sentiment_analysis = load_sentiment()
     
     # categorize the hashtags
     # hashtags = to_list(message_dct, 'message_tags')
@@ -222,19 +220,19 @@ if __name__ == '__main__':
     
     # calculate length of post
     # df_lop = length_of_post(raw_texts)
-    # df = df.join(df_sentiment_analysis.set_index('key'), on='key')
-    # # df = pd.concat([df, df_bow, df_bow_hashtags], axis=1)
+    df = df.join(df_sentiment_analysis.set_index('key'), on='key')
+    # df = pd.concat([df, df_bow, df_bow_hashtags], axis=1)
     # df = df.join(df_lop.set_index('key'))
-    # df = df.join(df_events.set_index('key'))
-    # df = df.fillna(0)
-    # df.drop(columns=['key'], axis=1)
-    # # df = df.astype('float')
-    # # df = pd.concat([df, df_bert, df_sentiment_score, df_bow_hashtags, df_lop], axis=1)
-    # X, y = seperate_label(df, 'total_engagement_label3')
-    # scaled_X = pd.DataFrame(StandardScaler().fit_transform(X),columns=X.columns) 
-    # dataset = pd.concat([pd.DataFrame(scaled_X), y], axis=1)
-    # # PCA_X = dim_reduction(X)
-    # # PCA_dataset = pd.concat([pd.DataFrame(PCA_X), y], axis=1)
-    # train, test = train_test_split(dataset, test_size=0.3, shuffle=True, random_state=123)
-    # train.to_csv('train_new.csv', index=False)
-    # test.to_csv('test_new.csv', index=False)
+    df = df.join(df_events.set_index('key'))
+    df = df.fillna(0)
+    df.drop(columns=['key'], axis=1)
+    # df = df.astype('float')
+    # df = pd.concat([df, df_bert, df_sentiment_score, df_bow_hashtags, df_lop], axis=1)
+    X, y = seperate_label(df, 'shares_label3')
+    scaled_X = pd.DataFrame(StandardScaler().fit_transform(X),columns=X.columns) 
+    dataset = pd.concat([pd.DataFrame(scaled_X), y], axis=1)
+    # PCA_X = dim_reduction(X)
+    # PCA_dataset = pd.concat([pd.DataFrame(PCA_X), y], axis=1)
+    train, test = train_test_split(dataset, test_size=0.3, shuffle=True, random_state=123)
+    train.to_csv('train_new2.csv', index=False)
+    test.to_csv('test_new2.csv', index=False)
