@@ -46,8 +46,8 @@ FeaturePrep0316.py - Assign output engagement labels and add word flags to 0315 
 	create PrepData0316, dataset0316.csv
 
 
-FeatureExtraction.py - Prepare complete post dataset to merge with SentimentAnalysis.csv
-	create dataset_0320.csv for statistical testing; also created with train_new.csv and test_new.csv as train and test sets for modelling
+FeatureExtraction.py - Prepare complete post dataset to merge with SentimentAnalysis.csv;
+	create dataset_0320.csv for statistical testing; also created train_new.csv and test_new.csv as train and test sets for modelling
 
 
 PrelimAnalysis - Create charts in PrelimAnalysisChart & StatsChart, detect outliers, run correlation, regression, and statistical tests
