@@ -94,7 +94,9 @@ Feature Documentation.py - all features used explained
 		engagement_rate_label total_engagement_label
 		total_engagement_label engagement_rate_label
 
-Attachment Media Type Summary 
+
+Attachment media type summary in raw data:
+
 
 		[share]                                 1267	=> [share]
 		[photo]                                  538	=> [photo]
