@@ -8,7 +8,7 @@ Members: Sabrina Li, Lisa Sun
 This project is for Master Modeler Competition 2021, aiming to help ERASE Child Trafficking increase social media exposure.
 
 
-FILES:
+MAIN FILES:
 
 
 DataCollection1-2.py - GraphAPI
@@ -19,10 +19,11 @@ DataCleaning.py - created_times, clean text and attachments
 	create FilteredData, dataset.csv from RawData
 
 
-TextPreprocessor.py
+TextPreprocessor.py - A text preprocessing pipeline to clean the post content and extract content-related features such as emojis, mentions, names, etc.
 
+TextVisualization.py - Analyze the post content by generating wordcloud
 
-TextAnalysis.py
+TextAnalysis.py - Analyze the post content by generating ngrams, tf-idf scores, and frequency tables
 
 
 unavailable_urls.txt - url not working (error100, including deleted, not including repost)
@@ -46,7 +47,7 @@ FeaturePrep0316.py - Assign output engagement labels and add word flags to 0315 
 
 
 FeatureExtraction.py - Prepare complete post dataset to merge with SentimentAnalysis.csv
-	create dataset_0320.csv
+	create dataset_0320.csv for statistical testing; also created with train_new.csv and test_new.csv as train and test sets for modelling
 
 
 PrelimAnalysis - Create charts in PrelimAnalysisChart & StatsChart, detect outliers, run correlation, regression, and statistical tests
@@ -87,8 +88,9 @@ PrelimAnalysis - Create charts in PrelimAnalysisChart & StatsChart, detect outli
 		total_engagement_label engagement_rate_label
 
 
-Modelling.py - Build models
+Modelling.py - Implement Machine Learning models and evalute their performance
 
+model_performance.txt
 
 Feature Documentation.py - all features used explained
 
