@@ -51,7 +51,14 @@ FeatureExtraction.py - Prepare complete post dataset to merge with SentimentAnal
 
 
 PrelimAnalysis - Create charts in PrelimAnalysisChart & StatsChart, detect outliers, run correlation, regression, and statistical tests
-	
+
+Modelling.py - Implement Machine Learning models and evalute their performance
+
+model_performance.txt
+
+Feature Documentation.py - all features used explained
+
+
 	engagement_rate 16 outlier removed
 	Quantile after outlier removed: 
 		0.10     13.592867
@@ -87,16 +94,8 @@ PrelimAnalysis - Create charts in PrelimAnalysisChart & StatsChart, detect outli
 		engagement_rate_label total_engagement_label
 		total_engagement_label engagement_rate_label
 
+Attachment Media Type Summary 
 
-Modelling.py - Implement Machine Learning models and evalute their performance
-
-model_performance.txt
-
-Feature Documentation.py - all features used explained
-
-
-
-	Attachment Media Type Summary
 		[share]                                 1267	=> [share]
 		[photo]                                  538	=> [photo]
 		[video_inline]                           207	=> [video]
