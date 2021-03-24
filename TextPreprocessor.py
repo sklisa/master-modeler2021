@@ -124,6 +124,10 @@ class TextPreprocessor:
         self.text = ' '.join(text_list)
         return self
     
+    def remove_blank_spaces(self):
+        self.text = re.sub(r'\s{2,}|\t', repl=' ', string=self.text)
+        return self
+    
     def lowercase(self):
         self.text = self.text.lower()
         return self

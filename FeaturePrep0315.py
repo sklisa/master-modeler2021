@@ -57,11 +57,6 @@ for file in in_files:
             #         new_dct['face_present'] = 2
             #         list_of_modified.append(filename)
 
-            # Extract video
-            # if new_dct['video'] == 1:
-            #     url = new_dct['video_url']
-            #     print(url)
-            #     ???????????
 
             # out_file = open(out_dir + filename, 'w')
             # json.dump(new_dct, out_file)

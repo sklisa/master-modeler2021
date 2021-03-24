@@ -1,36 +1,30 @@
 # master-modeler2021
 
+Team: Eagles Who Code
+
+Members: Sabrina Li, Lisa Sun
+
 
 This project is for Master Modeler Competition 2021, aiming to help ERASE Child Trafficking increase social media exposure.
 
 
-DataCollection.py - GraphAPI
+FILES:
+
+DataCollection1-2.py - GraphAPI
+	create RawData - raw JSON files with index matching the excel order, including error100 as empty JSON files
+
+
+DataCleaning.py - created_times, clean text and attachments
+	create FilteredData, dataset.csv from RawData
+
+
+TextPreprocessor.py
+
+
+TextAnalysis.py
+
+
 unavailable_urls.txt - url not working (error100, including deleted, not including repost)
-RawData - JSON, index==excel order, including error100=>empty JSON
-FilteredData == dataset.csv
-DataCleaning.py - created_times=>pandas extraction; 
-
-
-media_type summary
-[share]                                 1267	=> [share]
-[photo]                                  538	=> [photo]
-[video_inline]                           207	=> [video]
-[album]                                   21	=> [photo]
-[]                                        21	ignore
-[video_direct_response]                   17	=> [video]
-[share, fundraiser_for_story]              6	ignore
-[native_templates]                         4	=> [video], but dont have url
-[cover_photo]                              3	delete, update cover photo
-[fundraiser_for_story]                     2	ignore
-[photo, fundraiser_for_story]              2	ignore
-[avatar]                                   2	delete, others page
-[visual_poll]                              2	ignore
-[video_inline, fundraiser_for_story]       2 	ignore fundraiser_for_story
-[video]                                    2	=> [video]
-[map]                                      1	=> [video] video at a place, cannot get link to video
-[profile_media]                            1    delete, update profile picture
-[new_album]                                1    => [photo], photo not shown
-^[link]											=> [link], added based on 'urls' column
 
 
 FeaturePrep0313.py - Extract date, time, media type & url; merge engagements from original data
@@ -46,7 +40,16 @@ FeaturePrep0315.py - Incorporate face features into 0313 data
 	create PrepData0315, dataset0315.csv
 
 
-PrelimAnalysis
+FeaturePrep0316.py - Assign output engagement labels and add word flags to 0315 data
+	create PrepData0316, dataset0316.csv
+
+
+FeatureExtraction.py - Prepare complete post dataset to merge with SentimentAnalysis.csv
+	create dataset_0320.csv
+
+
+PrelimAnalysis - Create charts in PrelimAnalysisChart & StatsChart, detect outliers, run correlation, regression, and statistical tests
+	
 	engagement_rate 16 outlier removed
 	Quantile after outlier removed: 
 		0.10     13.592867
@@ -81,4 +84,31 @@ PrelimAnalysis
 		evening time_day
 		engagement_rate_label total_engagement_label
 		total_engagement_label engagement_rate_label
+
+
+Modelling.py - Build models
+
+
+
+	Attachment Media Type Summary
+		[share]                                 1267	=> [share]
+		[photo]                                  538	=> [photo]
+		[video_inline]                           207	=> [video]
+		[album]                                   21	=> [photo]
+		[]                                        21	ignore
+		[video_direct_response]                   17	=> [video]
+		[share, fundraiser_for_story]              6	ignore
+		[native_templates]                         4	=> [video], but dont have url
+		[cover_photo]                              3	delete, update cover photo
+		[fundraiser_for_story]                     2	ignore
+		[photo, fundraiser_for_story]              2	ignore
+		[avatar]                                   2	delete, others page
+		[visual_poll]                              2	ignore
+		[video_inline, fundraiser_for_story]       2 	ignore fundraiser_for_story
+		[video]                                    2	=> [video]
+		[map]                                      1	=> [video] video at a place, cannot get link to video
+		[profile_media]                            1    delete, update profile picture
+		[new_album]                                1    => [photo], photo not shown
+		^[link]											=> [link], added based on 'urls' column
+
 

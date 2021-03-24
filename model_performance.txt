@@ -1,0 +1,97 @@
+*** Dummy Classifier (predict the class label uniformly at random, used for baseline comparison)
+
+              precision    recall  f1-score   support
+
+         0.0       0.52      0.55      0.53       317
+         1.0       0.51      0.49      0.50       311
+
+    accuracy                           0.52       628
+   macro avg       0.52      0.52      0.52       628
+weighted avg       0.52      0.52      0.52       628
+
+Accuracy:  0.517515923566879
+AUC:  0.5172989254314556
+
+*** Support Vector Machine:
+
+best params:  {'C': 10, 'gamma': 0.01, 'kernel': 'rbf'}
+best_score (f1_weighted): 0.6210947280968371
+
+              precision    recall  f1-score   support
+
+         0.0       0.67      0.64      0.65       350
+         1.0       0.57      0.61      0.59       278
+
+    accuracy                           0.62       628
+   macro avg       0.62      0.62      0.62       628
+weighted avg       0.63      0.62      0.63       628
+
+Accuracy:  0.6242038216560509
+AUC:  0.621316346466949
+
+*** Random Forest:
+
+best params:  {'n_estimators': 80, 'min_samples_leaf': 6, 'max_features': 'auto', 'max_depth': 295, 'criterion': 'entropy'}
+best_score (f1_weighted): 0.6020877406880771
+
+              precision    recall  f1-score   support
+
+         0.0       0.60      0.64      0.62       312
+         1.0       0.62      0.58      0.60       316
+
+    accuracy                           0.61       628
+   macro avg       0.61      0.61      0.61       628
+weighted avg       0.61      0.61      0.61       628
+
+Accuracy:  0.6114649681528662
+AUC:  0.6120156300879191
+
+*** Gradient Boosting:
+
+best params:  {'n_estimators': 128, 'min_samples_split': 0.5, 'min_samples_leaf': 0.2, 'max_features': 24, 'max_depth': 9, 'learning_rate': 0.25}
+best_score (f1_weighted): 0.5986283247256504
+
+              precision    recall  f1-score   support
+
+         0.0       0.61      0.63      0.62       326
+         1.0       0.59      0.58      0.58       302
+
+    accuracy                           0.60       628
+   macro avg       0.60      0.60      0.60       628
+weighted avg       0.60      0.60      0.60       628
+
+Accuracy:  0.6019108280254777
+AUC:  0.6011478345815695
+
+*** Logistic Regression:
+
+(No parameter tuning)
+
+              precision    recall  f1-score   support
+
+         0.0       0.61      0.64      0.62       313
+         1.0       0.62      0.58      0.60       315
+
+    accuracy                           0.61       628
+   macro avg       0.61      0.61      0.61       628
+weighted avg       0.61      0.61      0.61       628
+
+Accuracy:  0.6130573248407644
+AUC:  0.6135216541843047
+
+*** KNN:
+
+best params:  {'weights': 'distance', 'n_neighbors': 5, 'metric': 'euclidean'}
+best_score (f1_weighted): 0.5794282612012879
+
+              precision    recall  f1-score   support
+
+         0.0       0.64      0.60      0.62       356
+         1.0       0.52      0.56      0.54       272
+
+    accuracy                           0.58       628
+   macro avg       0.58      0.58      0.58       628
+weighted avg       0.59      0.58      0.58       628
+
+Accuracy:  0.5828025477707006
+AUC:  0.5792290784760664
