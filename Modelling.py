@@ -13,10 +13,10 @@ from sklearn.naive_bayes import GaussianNB
 from sklearn.svm import SVC
 from sklearn.ensemble import GradientBoostingClassifier
 
-mode = 'weighted_engagement_label3'
+mode = 'shares_label3'
 
-train = pd.read_csv('train_new.csv')
-test = pd.read_csv('test_new.csv')
+train = pd.read_csv('train_new2.csv')
+test = pd.read_csv('test_new2.csv')
 
 yTrain = train[mode].to_numpy()
 xTrain = train.drop(columns=[mode], axis=1)
@@ -50,7 +50,7 @@ def model(mode):
     
     fpr, tpr, thresholds = roc_curve(yTest, predictions)
     print('AUC: ', auc(fpr, tpr))
-    
+
     #### available for Random Forest, Gradient Boosting (Feature Importances) and Logistic Regression (Feature Coefficients)
     feat_imp = pd.Series(clf.coef_[0], predictors).sort_values(ascending=False) # coef_[0] or feature_importances_
     feat_imp.plot(kind='bar', title='Feature Coefficients (Logistic Regression)' ) # Feature Coefficients or Feature Importances
@@ -92,5 +92,5 @@ def param_tuning(mode, search, metric):
     print('best_score (%s):' %(metric), clf.best_score_)
     
 if __name__ == '__main__':
-    model('dummy')
-    # param_tuning('rf', 'random', 'f1_weighted')
+    # model('')
+    param_tuning('rf', 'random', 'f1_weighted')
